@@ -54,7 +54,14 @@ async def analyze_voice(
 ):
     get_user_id(authorization)
     contents = await file.read()
-    result = await analyze_voice_message(contents, file.filename or "audio.webm")
+    try:
+        result = await analyze_voice_message(contents, file.filename or "audio.webm")
+    except RuntimeError as e:
+        if str(e) == "QUOTA_EXCEEDED":
+            raise HTTPException(status_code=429, detail="AI quota exceeded. Please try again in a few minutes.")
+        raise HTTPException(status_code=500, detail=f"Voice analysis failed: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Voice analysis failed: {str(e)}")
     return {"transcript": result.transcript, "nutrition": result.nutrition.model_dump()}
 
 
@@ -148,7 +155,14 @@ async def log_meal_from_voice(
 ):
     user_id = get_user_id(authorization)
     contents = await file.read()
-    result = await analyze_voice_message(contents, file.filename or "audio.webm")
+    try:
+        result = await analyze_voice_message(contents, file.filename or "audio.webm")
+    except RuntimeError as e:
+        if str(e) == "QUOTA_EXCEEDED":
+            raise HTTPException(status_code=429, detail="AI quota exceeded. Please try again in a few minutes.")
+        raise HTTPException(status_code=500, detail=f"Voice analysis failed: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Voice analysis failed: {str(e)}")
 
     log_date = date.fromisoformat(meal_date) if meal_date else date.today()
 

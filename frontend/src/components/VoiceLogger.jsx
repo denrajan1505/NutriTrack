@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { Mic, MicOff, Loader2, Square } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { logMealVoice } from '../lib/api'
+import { analyzeVoice, logMealVoice } from '../lib/api'
 import { NutritionBadge, MealQualityBadge } from './NutritionCard'
 
 export default function VoiceLogger({ onLogged }) {
@@ -45,10 +45,15 @@ export default function VoiceLogger({ onLogged }) {
     setProcessing(true)
     try {
       const file = new File([blob], 'voice.webm', { type: 'audio/webm' })
-      const { data } = await import('../lib/api').then((m) => m.analyzeVoice(file))
+      const { data } = await analyzeVoice(file)
       setResult(data)
-    } catch {
-      toast.error('Could not process voice. Please try text logging.')
+    } catch (err) {
+      if (err?.response?.status === 429) {
+        toast.error('AI is busy — please wait 1 minute and try again')
+      } else {
+        const detail = err?.response?.data?.detail || 'Voice processing failed'
+        toast.error(detail)
+      }
     } finally {
       setProcessing(false)
     }
