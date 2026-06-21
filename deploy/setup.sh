@@ -8,7 +8,15 @@ REPO="https://github.com/denrajan1505/NutriTrack.git"
 
 echo "===== [1/8] Installing system packages ====="
 apt-get update -y
-apt-get install -y python3.12 python3.12-venv python3.12-dev python3-pip nginx git curl build-essential
+apt-get install -y software-properties-common nginx git curl build-essential python3-pip
+
+# Install Python 3.12 via deadsnakes PPA (safe on any Ubuntu version)
+if ! command -v python3.12 &> /dev/null; then
+    add-apt-repository ppa:deadsnakes/ppa -y
+    apt-get update -y
+    apt-get install -y python3.12 python3.12-venv python3.12-dev
+fi
+echo "Python: $(python3.12 --version)"
 
 echo "===== [2/8] Installing Node.js 20 ====="
 if ! command -v node &> /dev/null; then
