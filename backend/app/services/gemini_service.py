@@ -1,13 +1,13 @@
-import openai
+from google import genai
+from google.genai import types
 import json
 import re
-import base64
+import asyncio
 from app.core.config import settings
 from app.models.schemas import NutritionInfo
 
-_client = openai.AsyncOpenAI(api_key=settings.openai_api_key)
-_TEXT_MODEL = "gpt-4o-mini"
-_VISION_MODEL = "gpt-4o-mini"
+_client = genai.Client(api_key=settings.gemini_api_key)
+_MODEL = "gemini-1.5-flash"
 
 NUTRITION_SCHEMA = """{
   "calories": <number>,
@@ -38,7 +38,6 @@ def _parse_nutrition_json(text: str) -> NutritionInfo:
     if not match:
         raise ValueError("No JSON found in response")
     data = json.loads(match.group())
-    # Normalize food_items: GPT sometimes returns objects instead of strings
     if isinstance(data.get("food_items"), list):
         normalized = []
         for item in data["food_items"]:
@@ -53,27 +52,21 @@ def _parse_nutrition_json(text: str) -> NutritionInfo:
 
 def _is_quota_error(e: Exception) -> bool:
     msg = str(e)
-    return "429" in msg or "quota" in msg.lower() or "insufficient_quota" in msg.lower()
+    return "429" in msg or "quota" in msg.lower() or "resource_exhausted" in msg.lower()
 
 
 async def analyze_food_image(image_bytes: bytes) -> NutritionInfo:
-    b64 = base64.b64encode(image_bytes).decode()
+    prompt = f"{_INDIAN_FOOD_SYSTEM}\n\nIdentify this food and return ONLY valid JSON:\n{NUTRITION_SCHEMA}"
     try:
-        response = await _client.chat.completions.create(
-            model=_VISION_MODEL,
-            messages=[
-                {"role": "system", "content": _INDIAN_FOOD_SYSTEM},
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}},
-                        {"type": "text", "text": f"Identify this food and return ONLY valid JSON:\n{NUTRITION_SCHEMA}"},
-                    ],
-                },
+        response = await asyncio.to_thread(
+            _client.models.generate_content,
+            model=_MODEL,
+            contents=[
+                types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
+                prompt,
             ],
-            max_tokens=500,
         )
-        return _parse_nutrition_json(response.choices[0].message.content)
+        return _parse_nutrition_json(response.text)
     except Exception as e:
         if _is_quota_error(e):
             raise RuntimeError("QUOTA_EXCEEDED")
@@ -81,22 +74,18 @@ async def analyze_food_image(image_bytes: bytes) -> NutritionInfo:
 
 
 async def analyze_food_text(text: str) -> NutritionInfo:
+    prompt = (
+        f"{_INDIAN_FOOD_SYSTEM}\n\n"
+        f'The user logged this meal: "{text}"\n\n'
+        f'Return ONLY valid JSON:\n{NUTRITION_SCHEMA}'
+    )
     try:
-        response = await _client.chat.completions.create(
-            model=_TEXT_MODEL,
-            messages=[
-                {"role": "system", "content": _INDIAN_FOOD_SYSTEM},
-                {
-                    "role": "user",
-                    "content": (
-                        f'The user logged this meal: "{text}"\n\n'
-                        f'Return ONLY valid JSON:\n{NUTRITION_SCHEMA}'
-                    ),
-                },
-            ],
-            max_tokens=400,
+        response = await asyncio.to_thread(
+            _client.models.generate_content,
+            model=_MODEL,
+            contents=prompt,
         )
-        return _parse_nutrition_json(response.choices[0].message.content)
+        return _parse_nutrition_json(response.text)
     except Exception as e:
         if _is_quota_error(e):
             raise RuntimeError("QUOTA_EXCEEDED")
@@ -134,12 +123,12 @@ async def generate_meal_suggestions(
         '  "motivational_tip": "<short motivational message>"\n}'
     )
     try:
-        response = await _client.chat.completions.create(
-            model=_TEXT_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=400,
+        response = await asyncio.to_thread(
+            _client.models.generate_content,
+            model=_MODEL,
+            contents=prompt,
         )
-        match = re.search(r'\{.*\}', response.choices[0].message.content, re.DOTALL)
+        match = re.search(r'\{.*\}', response.text, re.DOTALL)
         if not match:
             return _SUGGESTIONS_FALLBACK
         return json.loads(match.group())
@@ -169,12 +158,12 @@ async def generate_weekly_summary(stats: dict) -> str:
         "Be encouraging, specific, and actionable. Max 3 sentences."
     )
     try:
-        response = await _client.chat.completions.create(
-            model=_TEXT_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=150,
+        response = await asyncio.to_thread(
+            _client.models.generate_content,
+            model=_MODEL,
+            contents=prompt,
         )
-        return response.choices[0].message.content.strip()
+        return response.text.strip()
     except Exception:
         return _weekly_summary_fallback(stats)
 
@@ -188,11 +177,11 @@ async def analyze_whatsapp_message(message: str) -> str:
         "Keep response under 150 words. Use simple formatting."
     )
     try:
-        response = await _client.chat.completions.create(
-            model=_TEXT_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=200,
+        response = await asyncio.to_thread(
+            _client.models.generate_content,
+            model=_MODEL,
+            contents=prompt,
         )
-        return response.choices[0].message.content.strip()
+        return response.text.strip()
     except Exception:
         return "Sorry, I couldn't process that right now. Please try again."
