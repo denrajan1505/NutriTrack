@@ -91,16 +91,23 @@ export default function TextLogger({ onLogged }) {
   const [analyzing, setAnalyzing] = useState(false)
   const [logging, setLogging] = useState(false)
   const [manualMode, setManualMode] = useState(false)
+  const [rateLimited, setRateLimited] = useState(false)
 
   const handleAnalyze = async () => {
     if (!text.trim()) return
     setAnalyzing(true)
     setManualMode(false)
+    setRateLimited(false)
     try {
       const { data } = await analyzeText(text)
       setNutrition(data)
-    } catch {
-      setManualMode(true)
+    } catch (err) {
+      if (err?.response?.status === 429) {
+        setRateLimited(true)
+        toast.error('AI is busy — please wait 1 minute and try again')
+      } else {
+        setManualMode(true)
+      }
     } finally {
       setAnalyzing(false)
     }
@@ -167,6 +174,12 @@ export default function TextLogger({ onLogged }) {
         </button>
       </div>
 
+      {rateLimited && (
+        <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-xl px-3 py-2.5">
+          <Loader2 className="w-4 h-4 flex-shrink-0" />
+          <span>AI rate limit reached. Wait ~1 minute and tap Analyze again.</span>
+        </div>
+      )}
       {manualMode && <ManualEntry description={text} onLogged={onLogged} />}
 
       {nutrition && (
