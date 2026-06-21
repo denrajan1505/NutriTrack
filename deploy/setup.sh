@@ -77,7 +77,7 @@ cd $APP_DIR/frontend
 cat > .env.production << 'FRONTENV'
 VITE_SUPABASE_URL=https://mwcxmogqfvgcmipavzko.supabase.co
 VITE_SUPABASE_ANON_KEY=PASTE_YOUR_SUPABASE_ANON_KEY
-VITE_API_URL=http://187.77.122.203
+VITE_API_URL=http://nutries.appden.sbs
 FRONTENV
 
 echo "Update frontend/.env.production with your Supabase anon key if needed"
