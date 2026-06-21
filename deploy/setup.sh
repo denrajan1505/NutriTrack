@@ -8,7 +8,7 @@ REPO="https://github.com/denrajan1505/NutriTrack.git"
 
 echo "===== [1/8] Installing system packages ====="
 apt-get update -y
-apt-get install -y python3 python3-pip python3-venv nginx git curl
+apt-get install -y python3.12 python3.12-venv python3.12-dev python3-pip nginx git curl build-essential
 
 echo "===== [2/8] Installing Node.js 20 ====="
 if ! command -v node &> /dev/null; then
@@ -28,7 +28,7 @@ fi
 
 echo "===== [4/8] Setting up Python backend ====="
 cd $APP_DIR/backend
-python3 -m venv venv
+python3.12 -m venv venv
 ./venv/bin/pip install --upgrade pip
 ./venv/bin/pip install -r requirements.txt
 
