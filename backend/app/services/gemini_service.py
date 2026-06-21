@@ -7,7 +7,7 @@ from app.core.config import settings
 from app.models.schemas import NutritionInfo
 
 _client = genai.Client(api_key=settings.gemini_api_key)
-_MODEL = "gemini-1.5-flash"
+_MODEL = "gemini-2.0-flash"
 
 NUTRITION_SCHEMA = """{
   "calories": <number>,
