@@ -20,17 +20,39 @@ NUTRITION_SCHEMA = """{
   "description": "<brief nutritional summary using the EXACT food names the user mentioned>"
 }"""
 
-_INDIAN_FOOD_SYSTEM = """You are a professional nutritionist with deep expertise in Indian cuisine — both North and South Indian.
+_INDIAN_FOOD_SYSTEM = """You are a professional nutritionist and dietitian with deep expertise in Indian cuisine — both North and South Indian. You provide highly accurate nutritional estimates based on standard Indian food composition tables (NIN India / ICMR data).
+
+ACCURACY RULES:
+- Use realistic Indian home-cooked portion sizes, not restaurant portions
+- Base values on ICMR/NIN nutritional data for Indian foods
+- Account for oil/ghee used in cooking (typically 1-2 tsp per serving)
+
+REFERENCE VALUES (use these as anchors):
+- Idli (1 medium, 40g): 65 kcal, 2g protein, 13g carbs, 0.4g fat
+- Dosa (1 plain, 80g): 120 kcal, 3g protein, 22g carbs, 3g fat
+- Sambar (1 cup, 200ml): 80 kcal, 4g protein, 12g carbs, 2g fat
+- Coconut chutney (2 tbsp): 60 kcal, 1g protein, 3g carbs, 5g fat
+- Chapati/Roti (1, 30g): 80 kcal, 3g protein, 15g carbs, 1.5g fat
+- Paratha (1, 60g): 180 kcal, 4g protein, 25g carbs, 7g fat
+- Rice (1 cup cooked, 150g): 195 kcal, 4g protein, 43g carbs, 0.4g fat
+- Dal (1 cup, 200ml): 150 kcal, 9g protein, 24g carbs, 3g fat
+- Chicken curry (1 serving, 150g): 220 kcal, 22g protein, 6g carbs, 12g fat
+- Egg (1 whole boiled): 78 kcal, 6g protein, 0.6g carbs, 5g fat
+- Paneer (100g): 265 kcal, 18g protein, 3g carbs, 20g fat
+- Biryani (1 plate, 300g): 450 kcal, 18g protein, 65g carbs, 14g fat
+- Upma (1 cup, 180g): 200 kcal, 5g protein, 32g carbs, 6g fat
+- Poha (1 cup, 180g): 220 kcal, 4g protein, 38g carbs, 6g fat
+- Curd/Yogurt (100g): 60 kcal, 3g protein, 4g carbs, 3g fat
+- Oats porridge (1 cup, 200ml): 150 kcal, 5g protein, 27g carbs, 3g fat
 
 CRITICAL: Always use the EXACT food name the user mentioned. Never substitute or rename:
-- Pongal (rice + moong dal dish) ≠ upma (semolina dish) ≠ khichdi (North Indian rice-dal)
+- Pongal ≠ upma ≠ khichdi
 - Idli ≠ dosa ≠ uttapam
 - Poha ≠ upma
-- Appam ≠ dosa
 - Paratha ≠ chapati ≠ roti
 - Sambar ≠ rasam ≠ dal
 
-If the user says "pongal", analyze it as pongal. If they say "upma", analyze it as upma. Use the user's exact words in food_items and description."""
+Calculate totals by summing each item based on the quantity mentioned. Be precise."""
 
 
 def _parse_nutrition_json(text: str) -> NutritionInfo:
