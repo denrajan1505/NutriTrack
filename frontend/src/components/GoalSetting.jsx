@@ -28,11 +28,25 @@ export default function GoalSetting({ existing, onSaved }) {
     activity_level: 'moderate',
   })
   const [saving, setSaving] = useState(false)
+  const [errors, setErrors] = useState({})
 
-  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
+  const set = (k, v) => {
+    setForm((f) => ({ ...f, [k]: v }))
+    setErrors((e) => ({ ...e, [k]: null }))
+  }
+
+  const validate = () => {
+    const e = {}
+    if (!form.current_weight || parseFloat(form.current_weight) <= 0) e.current_weight = 'Required'
+    if (!form.target_weight || parseFloat(form.target_weight) <= 0) e.target_weight = 'Required'
+    if (!form.height || parseFloat(form.height) <= 0) e.height = 'Required'
+    if (!form.age || parseInt(form.age) <= 0) e.age = 'Required'
+    return e
+  }
 
   const handleSave = async () => {
-    if (!form.goal_type) return
+    const e = validate()
+    if (Object.keys(e).length) { setErrors(e); toast.error('Please fill in all required fields.'); return }
     setSaving(true)
     try {
       const payload = {
@@ -83,44 +97,48 @@ export default function GoalSetting({ existing, onSaved }) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Current Weight (kg)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Current Weight (kg) <span className="text-red-500">*</span></label>
           <input
             type="number"
             value={form.current_weight}
             onChange={(e) => set('current_weight', e.target.value)}
             placeholder="70"
-            className="input-field"
+            className={`input-field ${errors.current_weight ? 'border-red-400 focus:ring-red-300' : ''}`}
           />
+          {errors.current_weight && <p className="text-xs text-red-500 mt-1">{errors.current_weight}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Target Weight (kg)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Target Weight (kg) <span className="text-red-500">*</span></label>
           <input
             type="number"
             value={form.target_weight}
             onChange={(e) => set('target_weight', e.target.value)}
             placeholder="65"
-            className="input-field"
+            className={`input-field ${errors.target_weight ? 'border-red-400 focus:ring-red-300' : ''}`}
           />
+          {errors.target_weight && <p className="text-xs text-red-500 mt-1">{errors.target_weight}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Height (cm)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Height (cm) <span className="text-red-500">*</span></label>
           <input
             type="number"
             value={form.height}
             onChange={(e) => set('height', e.target.value)}
             placeholder="170"
-            className="input-field"
+            className={`input-field ${errors.height ? 'border-red-400 focus:ring-red-300' : ''}`}
           />
+          {errors.height && <p className="text-xs text-red-500 mt-1">{errors.height}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Age</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Age <span className="text-red-500">*</span></label>
           <input
             type="number"
             value={form.age}
             onChange={(e) => set('age', e.target.value)}
             placeholder="25"
-            className="input-field"
+            className={`input-field ${errors.age ? 'border-red-400 focus:ring-red-300' : ''}`}
           />
+          {errors.age && <p className="text-xs text-red-500 mt-1">{errors.age}</p>}
         </div>
       </div>
 
