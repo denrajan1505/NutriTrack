@@ -1,6 +1,13 @@
 import { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { Camera, Upload, X, Loader2 } from 'lucide-react'
+import { Camera, Upload, X, Loader2, Sparkles } from 'lucide-react'
+
+const EXAMPLES = [
+  { emoji: '🍛', label: 'Curry' },
+  { emoji: '🫓', label: 'Dosa' },
+  { emoji: '🥗', label: 'Salad' },
+  { emoji: '🍕', label: 'Pizza' },
+]
 import toast from 'react-hot-toast'
 import { analyzePhoto, logMealPhoto } from '../lib/api'
 import { MealQualityBadge, NutritionBadge } from './NutritionCard'
@@ -65,19 +72,38 @@ export default function PhotoUpload({ onLogged }) {
       {!preview ? (
         <div
           {...getRootProps()}
-          className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all ${
+          className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all ${
             isDragActive ? 'border-brand-400 bg-brand-50' : 'border-gray-200 hover:border-brand-300 hover:bg-gray-50'
           }`}
         >
           <input {...getInputProps()} />
-          <Camera className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-          <p className="text-sm font-medium text-gray-600">
-            {isDragActive ? 'Drop your food photo here' : 'Take or upload a food photo'}
-          </p>
-          <p className="text-xs text-gray-400 mt-1">JPG, PNG, WEBP up to 10MB</p>
+
+          {/* Example food thumbnails */}
+          <div className="flex justify-center gap-2.5 mb-5">
+            {EXAMPLES.map(({ emoji, label }, i) => (
+              <div
+                key={label}
+                className={`flex flex-col items-center gap-1 w-16 h-16 rounded-xl justify-center shadow-sm border border-gray-100 transition-transform ${
+                  i === 0 ? 'bg-orange-50 scale-110 ring-2 ring-brand-300' : 'bg-gray-50'
+                }`}
+              >
+                <span className="text-2xl">{emoji}</span>
+                <span className="text-[9px] font-medium text-gray-400">{label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-center gap-1.5 mb-1">
+            <Sparkles className="w-4 h-4 text-brand-500" />
+            <p className="text-sm font-semibold text-gray-700">
+              {isDragActive ? 'Drop your food photo here' : 'Snap any meal — AI does the rest'}
+            </p>
+          </div>
+          <p className="text-xs text-gray-400">Works with Indian, Western, or any cuisine · up to 10MB</p>
+
           <button type="button" className="btn-primary mt-4 inline-flex items-center gap-2">
-            <Upload className="w-4 h-4" />
-            Choose Photo
+            <Camera className="w-4 h-4" />
+            Take or Upload Photo
           </button>
         </div>
       ) : (
