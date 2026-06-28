@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { LayoutDashboard, UtensilsCrossed, BarChart3, Target, User, LogOut, Leaf, Shield } from 'lucide-react'
@@ -14,6 +15,7 @@ export default function Navbar() {
   const { user, isAdmin, signOut } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
+  const [showConfirm, setShowConfirm] = useState(false)
 
   const handleSignOut = async () => {
     await signOut()
@@ -77,7 +79,7 @@ export default function Navbar() {
             </div>
           </div>
           <button
-            onClick={handleSignOut}
+            onClick={() => setShowConfirm(true)}
             className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all"
           >
             <LogOut className="w-5 h-5" />
@@ -118,6 +120,28 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {/* Logout confirmation modal */}
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowConfirm(false)}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl" onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <LogOut className="w-6 h-6 text-red-500" />
+            </div>
+            <h2 className="font-bold text-gray-900 text-lg text-center mb-1">Sign out?</h2>
+            <p className="text-sm text-gray-500 text-center mb-6">You'll need to sign in again to access your account.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowConfirm(false)} className="flex-1 btn-secondary">Cancel</button>
+              <button
+                onClick={handleSignOut}
+                className="flex-1 py-2.5 px-5 rounded-xl font-semibold text-sm bg-red-500 hover:bg-red-600 text-white transition-all"
+              >
+                Sign out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Mobile header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-100 z-30 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -126,7 +150,7 @@ export default function Navbar() {
           </div>
           <span className="font-bold text-lg text-gray-900">Nutries</span>
         </div>
-        <button onClick={handleSignOut} className="text-gray-400 hover:text-red-500 transition-colors">
+        <button onClick={() => setShowConfirm(true)} className="text-gray-400 hover:text-red-500 transition-colors">
           <LogOut className="w-5 h-5" />
         </button>
       </header>
