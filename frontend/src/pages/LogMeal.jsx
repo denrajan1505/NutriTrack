@@ -11,6 +11,12 @@ const TABS = [
   { id: 'text', label: 'Text', icon: Type, desc: 'Type your meal' },
 ]
 
+const TAB_BANNERS = {
+  photo: { text: '✨ AI identifies your food & calculates nutrition instantly.', color: 'bg-brand-50 text-brand-700 border-brand-100' },
+  voice: { text: '🎙️ Speak naturally — AI understands and logs your meal.', color: 'bg-purple-50 text-purple-700 border-purple-100' },
+  text: { text: '💬 Describe any meal and AI breaks down the nutrition.', color: 'bg-gray-50 text-gray-600 border-gray-100' },
+}
+
 export default function LogMeal() {
   const [tab, setTab] = useState('photo')
   const navigate = useNavigate()
@@ -43,6 +49,11 @@ export default function LogMeal() {
             <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
           </button>
         ))}
+      </div>
+
+      {/* AI feature banner */}
+      <div className={`text-xs font-medium px-4 py-2.5 rounded-xl border ${TAB_BANNERS[tab].color}`}>
+        {TAB_BANNERS[tab].text}
       </div>
 
       {/* Tab content */}
