@@ -147,7 +147,8 @@ export default function Profile() {
           <button
             onClick={handleLinkPhone}
             disabled={linking || !isValidPhone}
-            className={`btn-primary whitespace-nowrap ${!isValidPhone || linking ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
+            className="btn-primary whitespace-nowrap"
+            style={!isValidPhone || linking ? { opacity: 0.4, cursor: 'not-allowed', pointerEvents: 'none' } : {}}
           >
             Link Number
           </button>
