@@ -16,8 +16,8 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (form.fullName.trim().length < 2) {
-      toast.error('Full name must be at least 2 characters')
+    if (form.fullName.trim().length < 3) {
+      toast.error('Full name must be at least 3 characters')
       return
     }
     if (!/^[a-zA-Z\s'-]+$/.test(form.fullName.trim())) {
@@ -65,7 +65,7 @@ export default function Register() {
                 placeholder="Rahul Sharma"
                 className="input-field"
                 required
-                minLength={2}
+                minLength={3}
               />
             </div>
             <div>
