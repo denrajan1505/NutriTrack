@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Loader2, TrendingUp, UtensilsCrossed, Lightbulb, ChevronRight } from 'lucide-react'
+import { Loader2, UtensilsCrossed, Lightbulb, ChevronRight, Camera, Mic } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { useDashboard, useSuggestions } from '../hooks/useNutrition'
 import { ProgressBar, MacroRing } from '../components/NutritionCard'
@@ -28,7 +28,8 @@ export default function Dashboard() {
   }
 
   const d = dashboard
-  const caloriesPct = d ? Math.min((d.total_calories / d.calorie_target) * 100, 100) : 0
+  const hasData = d?.meals?.length > 0
+  const caloriesPct = hasData ? Math.min((d.total_calories / d.calorie_target) * 100, 100) : 0
 
   return (
     <div className="space-y-5">
@@ -46,8 +47,31 @@ export default function Dashboard() {
         </Link>
       </div>
 
+      {/* Onboarding banner — shown only when no meals logged today */}
+      {d && !hasData && (
+        <div className="card border-2 border-dashed border-brand-200 bg-brand-50/50 text-center py-10 space-y-4">
+          <div className="text-6xl">🥗</div>
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">Log your first meal to see your stats</h2>
+            <p className="text-sm text-gray-500 mt-1">Your calorie progress, macros, and trends will appear here.</p>
+          </div>
+          <Link
+            to="/log"
+            className="btn-primary inline-flex items-center gap-2 text-base px-6 py-3"
+          >
+            <UtensilsCrossed className="w-5 h-5" />
+            Log a Meal
+          </Link>
+          <div className="flex items-center justify-center gap-6 pt-2 text-xs text-gray-400">
+            <span className="flex items-center gap-1"><Camera className="w-3.5 h-3.5" /> Snap a photo</span>
+            <span className="flex items-center gap-1"><Mic className="w-3.5 h-3.5" /> Speak it</span>
+            <span className="flex items-center gap-1"><UtensilsCrossed className="w-3.5 h-3.5" /> Type it</span>
+          </div>
+        </div>
+      )}
+
       {/* Calorie hero */}
-      {d && (
+      {hasData && (
         <div className="card bg-gradient-to-br from-brand-500 to-brand-600 text-white border-0">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -74,7 +98,7 @@ export default function Dashboard() {
       )}
 
       {/* Macros */}
-      {d && (
+      {hasData && (
         <div className="card">
           <h2 className="font-semibold text-gray-900 mb-4">Macros</h2>
           <div className="flex items-center justify-around">
@@ -149,17 +173,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {d && d.meals.length === 0 && (
-        <div className="card text-center py-12">
-          <div className="text-5xl mb-3">🥗</div>
-          <p className="font-semibold text-gray-700">No meals logged yet</p>
-          <p className="text-sm text-gray-400 mt-1">Snap a photo, speak, or type what you ate</p>
-          <Link to="/log" className="btn-primary inline-flex mt-4 items-center gap-2">
-            <UtensilsCrossed className="w-4 h-4" />
-            Log Your First Meal
-          </Link>
-        </div>
-      )}
     </div>
   )
 }
