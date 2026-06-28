@@ -67,11 +67,14 @@ export function NutritionBadge({ label, value, unit, color }) {
 
 export function MealQualityBadge({ score }) {
   if (!score) return null
-  const color = score >= 80 ? 'text-green-600 bg-green-50' : score >= 60 ? 'text-yellow-600 bg-yellow-50' : 'text-red-600 bg-red-50'
-  const label = score >= 80 ? 'Excellent' : score >= 60 ? 'Good' : 'Needs Improvement'
+  const { label, color, emoji } =
+    score >= 80 ? { label: 'Excellent', color: 'text-green-700 bg-green-50 border-green-100', emoji: '🌟' }
+    : score >= 60 ? { label: 'Good', color: 'text-green-600 bg-green-50 border-green-100', emoji: '✅' }
+    : score >= 40 ? { label: 'Fair', color: 'text-amber-600 bg-amber-50 border-amber-100', emoji: '👍' }
+    : { label: 'Poor', color: 'text-red-500 bg-red-50 border-red-100', emoji: '⚠️' }
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${color}`}>
-      {score}/100 · {label}
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border ${color}`}>
+      {emoji} {label} · {score}/100
     </span>
   )
 }

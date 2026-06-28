@@ -4,31 +4,64 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useWeekly } from '../hooks/useNutrition'
 import { format, parseISO } from 'date-fns'
 
-function ScoreRing({ score }) {
+function scoreLabel(score) {
+  if (score >= 80) return { text: 'Excellent', color: '#22c55e' }
+  if (score >= 60) return { text: 'Good', color: '#84cc16' }
+  if (score >= 40) return { text: 'Fair', color: '#f59e0b' }
+  return { text: 'Poor', color: '#ef4444' }
+}
+
+function ScoreRing({ score, mealsLogged }) {
   const r = 45
   const circ = 2 * Math.PI * r
-  const offset = circ - (score / 100) * circ
-  const color = score >= 75 ? '#22c55e' : score >= 50 ? '#f59e0b' : '#ef4444'
+  const tooFewMeals = mealsLogged < 3
+  const displayScore = tooFewMeals ? 0 : score
+  const offset = circ - (displayScore / 100) * circ
+  const { text, color } = scoreLabel(score)
 
   return (
-    <div className="relative w-32 h-32 mx-auto">
-      <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r={r} fill="none" stroke="#f3f4f6" strokeWidth="10" />
-        <circle
-          cx="50" cy="50" r={r}
-          fill="none"
-          stroke={color}
-          strokeWidth="10"
-          strokeDasharray={circ}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          className="transition-all duration-1000"
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-bold text-gray-900">{score}</span>
-        <span className="text-xs text-gray-400">/ 100</span>
+    <div className="flex flex-col items-center gap-3">
+      <div className="relative w-32 h-32">
+        <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r={r} fill="none" stroke="#f3f4f6" strokeWidth="10" />
+          <circle
+            cx="50" cy="50" r={r}
+            fill="none"
+            stroke={tooFewMeals ? '#d1d5db' : color}
+            strokeWidth="10"
+            strokeDasharray={circ}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            className="transition-all duration-1000"
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          {tooFewMeals ? (
+            <span className="text-2xl">📊</span>
+          ) : (
+            <>
+              <span className="text-3xl font-bold text-gray-900">{score}</span>
+              <span className="text-xs text-gray-400">/ 100</span>
+            </>
+          )}
+        </div>
       </div>
+
+      {tooFewMeals ? (
+        <div className="text-center">
+          <p className="text-sm font-semibold text-gray-700">Log more meals to build your score</p>
+          <p className="text-xs text-gray-400 mt-0.5">At least 3 meals needed for an accurate rating</p>
+        </div>
+      ) : (
+        <div className="text-center">
+          <span className="inline-block text-sm font-bold px-4 py-1 rounded-full" style={{ color, backgroundColor: `${color}18` }}>
+            {text}
+          </span>
+          <p className="text-xs text-gray-400 mt-1">
+            {score >= 80 ? 'Outstanding nutrition this week!' : score >= 60 ? 'Good work — keep it up.' : score >= 40 ? 'Room to improve — try adding more protein and vegetables.' : 'Start logging meals consistently to see your score rise.'}
+          </p>
+        </div>
+      )}
     </div>
   )
 }
@@ -67,7 +100,7 @@ export default function Weekly() {
       {/* Nutrition score */}
       <div className="card text-center">
         <h2 className="font-semibold text-gray-900 mb-5">Nutrition Score</h2>
-        <ScoreRing score={summary.nutrition_score} />
+        <ScoreRing score={summary.nutrition_score} mealsLogged={summary.total_meals_logged} />
         <div className="mt-5 grid grid-cols-3 gap-4 text-center pt-4 border-t border-gray-100">
           <div>
             <p className="text-2xl font-bold text-brand-600">{summary.protein_goal_met_days}/7</p>
