@@ -1,6 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, Outlet, Link, useLocation } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './hooks/useAuth'
+import { UtensilsCrossed } from 'lucide-react'
 import Navbar from './components/Navbar'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -15,6 +16,8 @@ import Admin from './pages/Admin'
 
 function ProtectedLayout() {
   const { user, loading } = useAuth()
+  const location = useLocation()
+  const hideFab = location.pathname === '/log'
 
   if (loading) {
     return (
@@ -32,6 +35,16 @@ function ProtectedLayout() {
       <main className="lg:ml-60 pt-16 lg:pt-0 pb-24 lg:pb-0 px-4 lg:px-8 py-6 max-w-2xl mx-auto lg:mx-0 lg:max-w-3xl">
         <Outlet />
       </main>
+
+      {!hideFab && (
+        <Link
+          to="/log"
+          className="fixed bottom-24 right-4 lg:bottom-8 lg:right-8 z-40 flex items-center gap-2.5 bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-semibold text-sm px-5 py-3.5 rounded-2xl shadow-xl hover:shadow-2xl transition-all"
+        >
+          <UtensilsCrossed className="w-5 h-5" />
+          Log Meal
+        </Link>
+      )}
     </div>
   )
 }

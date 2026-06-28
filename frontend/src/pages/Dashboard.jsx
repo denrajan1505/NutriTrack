@@ -34,17 +34,11 @@ export default function Dashboard() {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Hey, {name} 👋</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            {new Date().toLocaleDateString('en-IN', { weekday: 'long', month: 'long', day: 'numeric' })}
-          </p>
-        </div>
-        <Link to="/log" className="btn-primary text-sm py-2 px-4 inline-flex items-center gap-2">
-          <UtensilsCrossed className="w-4 h-4" />
-          Log
-        </Link>
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Hey, {name} 👋</h1>
+        <p className="text-sm text-gray-500 mt-0.5">
+          {new Date().toLocaleDateString('en-IN', { weekday: 'long', month: 'long', day: 'numeric' })}
+        </p>
       </div>
 
       {/* Onboarding banner — shown only when no meals logged today */}
