@@ -20,8 +20,8 @@ export default function Register() {
       toast.error('Full name must be at least 3 characters')
       return
     }
-    if (!/^[a-zA-Z\s'-]+$/.test(form.fullName.trim())) {
-      toast.error('Full name can only contain letters, spaces, hyphens, and apostrophes')
+    if (!/^[a-zA-Z\s'.\-]+$/.test(form.fullName.trim())) {
+      toast.error('Full name can only contain letters, spaces, hyphens, apostrophes, or periods')
       return
     }
     if (form.password.length < 6) {
