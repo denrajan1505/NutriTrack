@@ -65,7 +65,6 @@ export default function Register() {
                 placeholder="Rahul Sharma"
                 className="input-field"
                 required
-                minLength={3}
               />
             </div>
             <div>
@@ -88,7 +87,6 @@ export default function Register() {
                 placeholder="Min. 6 characters"
                 className="input-field"
                 required
-                minLength={6}
               />
             </div>
             <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
