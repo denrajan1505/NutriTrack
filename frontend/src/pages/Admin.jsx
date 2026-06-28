@@ -2,7 +2,13 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { getAdminUsers } from '../lib/api'
-import { Users, Shield, Mail, Clock, CheckCircle, XCircle, Search } from 'lucide-react'
+import { Users, Shield, Mail, Clock, CheckCircle, XCircle, Search, UtensilsCrossed, Crown, Zap } from 'lucide-react'
+
+const PLAN_STYLES = {
+  free:    { label: 'Free',    cls: 'bg-gray-100 text-gray-600' },
+  pro:     { label: 'Pro',     cls: 'bg-brand-100 text-brand-700' },
+  premium: { label: 'Premium', cls: 'bg-purple-100 text-purple-700' },
+}
 
 function formatDate(iso) {
   if (!iso) return '—'
@@ -82,15 +88,24 @@ export default function Admin() {
         </div>
       </div>
 
-      {/* Stats card */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 flex items-center gap-4">
-        <div className="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center">
-          <Users className="w-6 h-6 text-brand-600" />
-        </div>
-        <div>
-          <p className="text-2xl font-bold text-gray-900">{total}</p>
-          <p className="text-sm text-gray-500">Total registered users</p>
-        </div>
+      {/* Stats cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { label: 'Total Users', value: total, icon: Users, color: 'bg-brand-50 text-brand-600' },
+          { label: 'Free', value: users.filter(u => u.plan === 'free').length, icon: Shield, color: 'bg-gray-100 text-gray-600' },
+          { label: 'Pro', value: users.filter(u => u.plan === 'pro').length, icon: Zap, color: 'bg-brand-100 text-brand-700' },
+          { label: 'Premium', value: users.filter(u => u.plan === 'premium').length, icon: Crown, color: 'bg-purple-100 text-purple-700' },
+        ].map(({ label, value, icon: Icon, color }) => (
+          <div key={label} className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-3">
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
+              <Icon className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-xl font-bold text-gray-900">{value}</p>
+              <p className="text-xs text-gray-500">{label}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Search */}
@@ -119,6 +134,10 @@ export default function Admin() {
                     <p className="text-sm font-semibold text-gray-900 truncate">
                       {u.full_name || 'No name'}
                     </p>
+                    {/* Plan badge */}
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${PLAN_STYLES[u.plan]?.cls || PLAN_STYLES.free.cls}`}>
+                      {PLAN_STYLES[u.plan]?.label || 'Free'}
+                    </span>
                     {u.email_confirmed ? (
                       <span className="flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
                         <CheckCircle className="w-3 h-3" /> Verified
@@ -136,9 +155,12 @@ export default function Admin() {
                     <p className="text-xs text-gray-400 flex items-center gap-1">
                       <Clock className="w-3 h-3" /> Joined {formatDate(u.created_at)}
                     </p>
-                    {u.last_sign_in_at && (
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <UtensilsCrossed className="w-3 h-3" /> {u.meal_count ?? 0} meals
+                    </p>
+                    {u.last_active && (
                       <p className="text-xs text-gray-400">
-                        Last login: {formatDate(u.last_sign_in_at)}
+                        Last active: {formatDate(u.last_active)}
                       </p>
                     )}
                   </div>
