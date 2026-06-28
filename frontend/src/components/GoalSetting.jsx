@@ -1,5 +1,38 @@
 import { useState } from 'react'
-import { Loader2, Target } from 'lucide-react'
+import { Loader2, Target, AlertTriangle, Info } from 'lucide-react'
+
+function getWeightEstimate(goalType, current, target) {
+  const cur = parseFloat(current)
+  const tgt = parseFloat(target)
+  if (!cur || !tgt || cur === tgt) return null
+
+  if (goalType === 'weight_loss' && cur > tgt) {
+    const diff = cur - tgt
+    const months = Math.round(diff * 0.6)          // ~1.67 kg/month safe pace
+    const extreme = diff > 30
+    return {
+      type: extreme ? 'warning' : 'info',
+      months,
+      diff: diff.toFixed(1),
+      message: `Losing ${diff.toFixed(1)} kg at a healthy pace (~1.5–2 kg/month) may take ~${months} month${months !== 1 ? 's' : ''}.`,
+      extra: extreme ? 'A goal this large is best approached with a doctor or dietitian.' : null,
+    }
+  }
+
+  if ((goalType === 'weight_gain' || goalType === 'muscle_building') && tgt > cur) {
+    const diff = tgt - cur
+    const months = Math.round(diff / 0.5)           // ~0.5 kg/month lean gain
+    return {
+      type: 'info',
+      months,
+      diff: diff.toFixed(1),
+      message: `Gaining ${diff.toFixed(1)} kg of lean muscle at a healthy pace (~0.5 kg/month) may take ~${months} month${months !== 1 ? 's' : ''}.`,
+      extra: null,
+    }
+  }
+
+  return null
+}
 import toast from 'react-hot-toast'
 import { setGoal, updateGoal } from '../lib/api'
 
@@ -143,6 +176,28 @@ export default function GoalSetting({ existing, onSaved }) {
           {errors.age && <p className="text-xs text-red-500 mt-1">{errors.age}</p>}
         </div>
       </div>
+
+      {/* Weight estimate / warning */}
+      {(() => {
+        const est = getWeightEstimate(form.goal_type, form.current_weight, form.target_weight)
+        if (!est) return null
+        const isWarning = est.type === 'warning'
+        return (
+          <div className={`rounded-xl p-3.5 flex gap-3 ${isWarning ? 'bg-amber-50 border border-amber-200' : 'bg-blue-50 border border-blue-100'}`}>
+            {isWarning
+              ? <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+              : <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />}
+            <div className="space-y-0.5">
+              <p className={`text-xs font-semibold ${isWarning ? 'text-amber-700' : 'text-blue-700'}`}>
+                {est.message}
+              </p>
+              {est.extra && (
+                <p className={`text-xs ${isWarning ? 'text-amber-600' : 'text-blue-600'}`}>{est.extra}</p>
+              )}
+            </div>
+          </div>
+        )
+      })()}
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1.5">
