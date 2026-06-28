@@ -62,6 +62,7 @@ class UserGoalCreate(BaseModel):
     height: Optional[float] = None
     age: Optional[int] = None
     activity_level: Optional[str] = "moderate"
+    water_target: Optional[float] = None  # user override in litres
 
 
 class UserGoalResponse(BaseModel):
