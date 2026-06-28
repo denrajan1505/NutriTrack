@@ -73,6 +73,11 @@ async def whatsapp_webhook(
 
 @router.post("/link-phone")
 async def link_phone(phone: str, authorization: str = Header(...)):
+    import re
+    normalized = re.sub(r"\s+", "", phone)
+    if not re.fullmatch(r"\+\d{7,15}", normalized):
+        raise HTTPException(status_code=422, detail="Invalid phone number. Must start with + and country code, e.g. +919876543210")
+
     token = authorization.replace("Bearer ", "")
     try:
         user = supabase.auth.get_user(token)
@@ -80,5 +85,5 @@ async def link_phone(phone: str, authorization: str = Header(...)):
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-    supabase.table("whatsapp_users").upsert({"user_id": user_id, "phone": phone}, on_conflict="user_id").execute()
+    supabase.table("whatsapp_users").upsert({"user_id": user_id, "phone": normalized}, on_conflict="user_id").execute()
     return {"message": f"Phone {phone} linked to your account"}

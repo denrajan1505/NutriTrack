@@ -52,16 +52,26 @@ export default function Profile() {
 
   const paymentSuccess = searchParams.get('payment') === 'success'
 
+  const isValidPhone = /^\+\d{7,15}$/.test(phone.replace(/\s/g, ''))
+
+  const handlePhoneChange = (e) => {
+    const val = e.target.value.replace(/[^\d\s+]/g, '')
+    setPhone(val)
+  }
+
   const handleSignOut = async () => {
     await signOut()
     navigate('/login')
   }
 
   const handleLinkPhone = async () => {
-    if (!phone.trim()) return
+    if (!isValidPhone) {
+      toast.error('Enter a valid number with country code, e.g. +91 9876543210')
+      return
+    }
     setLinking(true)
     try {
-      await linkPhone(phone)
+      await linkPhone(phone.replace(/\s/g, ''))
       toast.success('WhatsApp linked! Send a message to get started.')
       setPhone('')
     } catch {
@@ -130,14 +140,21 @@ export default function Profile() {
           <input
             type="tel"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={handlePhoneChange}
             placeholder="+91 9876543210"
             className="input-field flex-1"
           />
-          <button onClick={handleLinkPhone} disabled={linking} className="btn-primary whitespace-nowrap">
+          <button
+            onClick={handleLinkPhone}
+            disabled={linking || !isValidPhone}
+            className="btn-primary whitespace-nowrap"
+          >
             Link Number
           </button>
         </div>
+        {phone.length > 0 && !isValidPhone && (
+          <p className="text-xs text-red-500 mt-1.5">Must start with + and country code (e.g. +91 9876543210)</p>
+        )}
       </div>
 
       {/* Pricing */}
