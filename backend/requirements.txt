@@ -14,3 +14,4 @@ passlib[bcrypt]==1.7.4
 aiofiles==24.1.0
 twilio==9.3.2
 requests==2.32.3
+dodopayments>=0.1.0

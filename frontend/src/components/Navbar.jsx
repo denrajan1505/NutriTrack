@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { LayoutDashboard, UtensilsCrossed, BarChart3, Target, User, LogOut, Leaf } from 'lucide-react'
+import { LayoutDashboard, UtensilsCrossed, BarChart3, Target, User, LogOut, Leaf, Shield } from 'lucide-react'
 
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -11,7 +11,7 @@ const NAV_ITEMS = [
 ]
 
 export default function Navbar() {
-  const { user, signOut } = useAuth()
+  const { user, isAdmin, signOut } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -49,6 +49,19 @@ export default function Navbar() {
               </Link>
             )
           })}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                location.pathname === '/admin'
+                  ? 'bg-brand-50 text-brand-700'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <Shield className={`w-5 h-5 ${location.pathname === '/admin' ? 'text-brand-600' : 'text-gray-400'}`} />
+              Admin
+            </Link>
+          )}
         </nav>
 
         <div className="px-3 py-4 border-t border-gray-100">
@@ -91,6 +104,17 @@ export default function Navbar() {
               </Link>
             )
           })}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-all ${
+                location.pathname === '/admin' ? 'text-brand-600' : 'text-gray-400'
+              }`}
+            >
+              <Shield className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Admin</span>
+            </Link>
+          )}
         </div>
       </nav>
 

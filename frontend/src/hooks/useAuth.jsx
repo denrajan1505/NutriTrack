@@ -1,11 +1,24 @@
 import { useState, useEffect, createContext, useContext } from 'react'
 import { supabase } from '../lib/supabase'
+import { getMe } from '../lib/api'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [plan, setPlan] = useState('free')
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!user) { setIsAdmin(false); setPlan('free'); return }
+    getMe()
+      .then(({ data }) => {
+        setIsAdmin(!!data.is_admin)
+        setPlan(data.plan || 'free')
+      })
+      .catch(() => { setIsAdmin(false); setPlan('free') })
+  }, [user?.id])
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -51,7 +64,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signUp, signIn, signOut, resetPassword, updatePassword }}>
+    <AuthContext.Provider value={{ user, isAdmin, plan, loading, signUp, signIn, signOut, resetPassword, updatePassword }}>
       {children}
     </AuthContext.Provider>
   )

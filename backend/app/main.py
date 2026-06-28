@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.routes import meals, dashboard, goals, whatsapp, auth
+from app.api.routes import meals, dashboard, goals, whatsapp, auth, admin, payments
 
 app = FastAPI(
     title="Nutries API",
@@ -23,6 +23,8 @@ app.include_router(meals.router, prefix="/api/v1")
 app.include_router(dashboard.router, prefix="/api/v1")
 app.include_router(goals.router, prefix="/api/v1")
 app.include_router(whatsapp.router, prefix="/api/v1")
+app.include_router(admin.router, prefix="/api/v1")
+app.include_router(payments.router, prefix="/api/v1")
 
 
 @app.get("/")

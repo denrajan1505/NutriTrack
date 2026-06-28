@@ -11,6 +11,7 @@ import LogMeal from './pages/LogMeal'
 import Weekly from './pages/Weekly'
 import Goals from './pages/Goals'
 import Profile from './pages/Profile'
+import Admin from './pages/Admin'
 
 function ProtectedLayout() {
   const { user, loading } = useAuth()
@@ -68,6 +69,7 @@ export default function App() {
             <Route path="/weekly" element={<Weekly />} />
             <Route path="/goals" element={<Goals />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/admin" element={<Admin />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

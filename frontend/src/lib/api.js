@@ -70,6 +70,12 @@ export const setGoal = (goalData) => api.post('/goals/', goalData)
 export const getGoal = () => api.get('/goals/')
 export const updateGoal = (goalData) => api.put('/goals/', goalData)
 
+// Admin
+export const getAdminUsers = () => api.get('/admin/users')
+
+// Payments
+export const createCheckout = (plan) => api.post(`/payments/checkout?plan=${plan}`)
+
 // WhatsApp
 export const linkPhone = (phone) =>
   api.post('/whatsapp/link-phone', null, { params: { phone } })

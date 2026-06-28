@@ -18,6 +18,12 @@ class Settings(BaseSettings):
     cors_origins: List[str] = ["http://localhost:5173"]
     admin_emails: List[str] = []
 
+    dodo_api_key: str = ""
+    dodo_webhook_secret: str = ""
+    dodo_pro_product_id: str = ""
+    dodo_premium_product_id: str = ""
+    frontend_url: str = "https://nutries.appden.sbs"
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
