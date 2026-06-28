@@ -6,6 +6,15 @@ import { NutritionBadge, MealQualityBadge } from './NutritionCard'
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
 
+const EXAMPLE_PROMPTS = [
+  '2 idlis with sambar and coconut chutney',
+  '1 cup rice, dal tadka and mixed sabzi',
+  'Masala dosa with chutney for breakfast',
+  'Chicken biryani with raita, 1 plate',
+  '2 rotis with paneer butter masala',
+  'Poha with chai for breakfast',
+]
+
 export default function VoiceLogger({ onLogged }) {
   const [listening, setListening] = useState(false)
   const [transcript, setTranscript] = useState('')
@@ -133,10 +142,25 @@ export default function VoiceLogger({ onLogged }) {
             >
               <Mic className="w-8 h-8" />
             </button>
-            <p className="text-sm text-gray-500">Tap and say what you ate</p>
-            <p className="text-xs text-gray-400 text-center max-w-xs">
-              e.g. "2 idlis with sambar and coconut chutney"
-            </p>
+            <p className="text-sm text-gray-500">Tap the mic and say what you ate</p>
+
+            {/* Example prompts */}
+            {!nutrition && (
+              <div className="w-full pt-1">
+                <p className="text-xs text-gray-400 text-center mb-2.5">Or tap an example to try instantly ↓</p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {EXAMPLE_PROMPTS.map((prompt) => (
+                    <button
+                      key={prompt}
+                      onClick={() => { setTranscript(prompt); analyzeTranscript(prompt) }}
+                      className="text-xs bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-100 rounded-full px-3 py-1.5 transition-colors text-left"
+                    >
+                      "{prompt}"
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
