@@ -16,6 +16,14 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (form.fullName.trim().length < 2) {
+      toast.error('Full name must be at least 2 characters')
+      return
+    }
+    if (!/^[a-zA-Z\s'-]+$/.test(form.fullName.trim())) {
+      toast.error('Full name can only contain letters, spaces, hyphens, and apostrophes')
+      return
+    }
     if (form.password.length < 6) {
       toast.error('Password must be at least 6 characters')
       return
@@ -57,6 +65,7 @@ export default function Register() {
                 placeholder="Rahul Sharma"
                 className="input-field"
                 required
+                minLength={2}
               />
             </div>
             <div>
