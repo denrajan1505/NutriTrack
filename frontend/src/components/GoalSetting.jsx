@@ -1,5 +1,34 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Loader2, Target, AlertTriangle, Info } from 'lucide-react'
+
+function calculatePreview(form) {
+  const weight = parseFloat(form.current_weight)
+  const height = parseFloat(form.height)
+  const age = parseInt(form.age)
+  if (!weight || !height || !age) return null
+
+  const bmr = 10 * weight + 6.25 * height - 5 * age + 5
+  const multipliers = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9 }
+  const tdee = bmr * (multipliers[form.activity_level] || 1.55)
+
+  let calories, proteinRatio, carbsRatio
+  if (form.goal_type === 'weight_loss') {
+    calories = Math.round(tdee - 500); proteinRatio = 0.35; carbsRatio = 0.40
+  } else if (form.goal_type === 'weight_gain') {
+    calories = Math.round(tdee + 400); proteinRatio = 0.25; carbsRatio = 0.50
+  } else if (form.goal_type === 'muscle_building') {
+    calories = Math.round(tdee + 300); proteinRatio = 0.35; carbsRatio = 0.40
+  } else {
+    calories = Math.round(tdee); proteinRatio = 0.25; carbsRatio = 0.45
+  }
+
+  return {
+    daily_calorie_target: calories,
+    daily_protein_target: Math.round((calories * proteinRatio) / 4),
+    daily_carbs_target: Math.round((calories * carbsRatio) / 4),
+    daily_water_target: parseFloat(form.water_target) || 2.5,
+  }
+}
 
 function getWeightEstimate(goalType, current, target) {
   const cur = parseFloat(current)
@@ -51,7 +80,7 @@ const ACTIVITY_LEVELS = [
   { value: 'very_active', label: 'Very Active (athlete)' },
 ]
 
-export default function GoalSetting({ existing, onSaved }) {
+export default function GoalSetting({ existing, onSaved, onPreview }) {
   const [form, setForm] = useState({
     goal_type: existing?.goal_type || 'maintenance',
     current_weight: existing?.current_weight || '',
@@ -64,8 +93,14 @@ export default function GoalSetting({ existing, onSaved }) {
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState({})
 
+  const preview = useMemo(() => calculatePreview(form), [form])
+
   const set = (k, v) => {
-    setForm((f) => ({ ...f, [k]: v }))
+    setForm((f) => {
+      const next = { ...f, [k]: v }
+      onPreview?.(calculatePreview(next))
+      return next
+    })
     setErrors((e) => ({ ...e, [k]: null }))
   }
 
