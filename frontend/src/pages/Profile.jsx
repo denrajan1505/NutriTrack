@@ -132,10 +132,27 @@ export default function Profile() {
           <h2 className="font-semibold text-gray-900">WhatsApp Agent</h2>
           <span className="text-xs bg-purple-100 text-purple-600 font-semibold rounded-full px-2 py-0.5 ml-auto">Premium</span>
         </div>
-        <p className="text-sm text-gray-500 mb-4">
-          Link your WhatsApp to log meals by just sending a message or photo.
-          Text <strong>+1 (415) 523-8886</strong> on WhatsApp to get started.
+        <p className="text-sm text-gray-500 mb-3">
+          Log meals by sending a food photo or text to the Nutries WhatsApp bot.
         </p>
+        <div className="bg-green-50 border border-green-200 rounded-xl p-3 mb-4 space-y-2.5 text-sm">
+          <div>
+            <p className="font-semibold text-green-800">Step 1 — Join the sandbox</p>
+            <p className="text-green-700 mt-0.5">
+              Save <strong>+1 (415) 523-8886</strong> in your contacts, open WhatsApp, and send:
+            </p>
+            <p className="mt-1.5 font-mono bg-white border border-green-300 rounded-lg px-3 py-1.5 text-green-900 text-xs tracking-wide select-all">
+              join &lt;your-sandbox-name&gt;
+            </p>
+            <p className="text-green-600 text-xs mt-1">
+              Find your sandbox join code in Twilio Console → Messaging → Try it out → Send a WhatsApp message
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold text-green-800">Step 2 — Link your number</p>
+            <p className="text-green-700 mt-0.5">Enter your WhatsApp number below and tap Link Number. Then start sending food photos or descriptions!</p>
+          </div>
+        </div>
         <div className="flex gap-3">
           <input
             type="tel"
