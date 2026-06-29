@@ -135,7 +135,7 @@ export default function Profile() {
         <p className="text-sm text-gray-500 mb-3">
           Log meals by sending a food photo or text to the Nutries WhatsApp bot.
         </p>
-        <div className="bg-green-50 border border-green-200 rounded-xl p-3 mb-4 space-y-2.5 text-sm">
+        {plan === 'premium' && <div className="bg-green-50 border border-green-200 rounded-xl p-3 mb-4 space-y-2.5 text-sm">
           <div>
             <p className="font-semibold text-green-800">Step 1 — Join the sandbox</p>
             <p className="text-green-700 mt-0.5">
@@ -152,7 +152,7 @@ export default function Profile() {
             <p className="font-semibold text-green-800">Step 2 — Link your number</p>
             <p className="text-green-700 mt-0.5">Enter your WhatsApp number below and tap Link Number. Then start sending food photos or descriptions!</p>
           </div>
-        </div>
+        </div>}
         <div className="flex gap-3">
           <input
             type="tel"
