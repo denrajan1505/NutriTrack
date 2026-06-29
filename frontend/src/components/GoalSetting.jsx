@@ -10,20 +10,20 @@ function calculatePreview(form) {
 
   // Mifflin-St Jeor (gender-specific)
   const genderOffset = form.gender === 'female' ? -161 : 5
-  const bmr = 10 * weight + 6.25 * height - 5 * age + genderOffset
+  const bmr = Math.round(10 * weight + 6.25 * height - 5 * age + genderOffset)
 
   const multipliers = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9 }
-  const tdee = bmr * (multipliers[form.activity_level] || 1.55)
+  const tdee = Math.round(bmr * (multipliers[form.activity_level] || 1.55))
 
   let calories
   if (form.goal_type === 'weight_loss') {
-    calories = Math.max(Math.round(tdee - 500), 1300)
+    calories = Math.max(Math.round(tdee * 0.80), 1300)
   } else if (form.goal_type === 'weight_gain') {
-    calories = Math.round(tdee + 300)
+    calories = tdee + 300
   } else if (form.goal_type === 'muscle_building') {
-    calories = Math.round(tdee + 250)
+    calories = tdee + 250
   } else {
-    calories = Math.round(tdee)
+    calories = tdee
   }
 
   let protein
@@ -35,7 +35,7 @@ function calculatePreview(form) {
     protein = Math.round(weight * 2.2)
   }
 
-  const fat = Math.round((calories * 0.30) / 9)
+  const fat = Math.round((calories * 0.27) / 9)
   const carbCalories = calories - protein * 4 - fat * 9
   const carbs = Math.max(0, Math.round(carbCalories / 4))
   const water = parseFloat((weight * 35 / 1000).toFixed(1))
@@ -46,6 +46,8 @@ function calculatePreview(form) {
     daily_carbs_target: carbs,
     daily_fat_target: fat,
     daily_water_target: water,
+    bmr,
+    tdee,
   }
 }
 

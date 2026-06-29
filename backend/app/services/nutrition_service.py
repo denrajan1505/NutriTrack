@@ -22,7 +22,7 @@ def calculate_targets(goal: UserGoalCreate) -> dict:
     tdee = bmr * activity_multipliers.get(goal.activity_level or "moderate", 1.55)
 
     if goal.goal_type == GoalType.weight_loss:
-        calorie_target = max(int(tdee - 500), 1300)
+        calorie_target = max(int(tdee * 0.80), 1300)
         protein_target = int(target_weight * 2.0)
     elif goal.goal_type == GoalType.weight_gain:
         calorie_target = int(tdee + 300)
@@ -34,10 +34,9 @@ def calculate_targets(goal: UserGoalCreate) -> dict:
         calorie_target = int(tdee)
         protein_target = int(weight * 1.5)
 
-    fat_target = int((calorie_target * 0.30) / 9)
+    fat_target = int((calorie_target * 0.27) / 9)
     carb_calories = calorie_target - (protein_target * 4) - (fat_target * 9)
     carbs_target = max(0, int(carb_calories / 4))
-
     water_target = round(weight * 35 / 1000, 1)
 
     return {

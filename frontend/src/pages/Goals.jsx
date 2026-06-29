@@ -54,6 +54,25 @@ export default function Goals() {
                 <span className="ml-auto text-xs bg-yellow-100 text-yellow-700 font-semibold rounded-full px-2 py-0.5">Preview</span>
               )}
             </div>
+
+            {/* BMR / TDEE breakdown */}
+            {preview?.bmr && (
+              <div className="bg-white rounded-xl px-4 py-3 mb-3 shadow-sm">
+                <div className="flex justify-between text-xs text-gray-500 mb-1.5">
+                  <span>BMR (base metabolic rate)</span>
+                  <span className="font-semibold text-gray-700">{preview.bmr} kcal/day</span>
+                </div>
+                <div className="flex justify-between text-xs text-gray-500 mb-1.5">
+                  <span>Maintenance (TDEE)</span>
+                  <span className="font-semibold text-gray-700">{preview.tdee} kcal/day</span>
+                </div>
+                <div className="flex justify-between text-xs border-t border-dashed border-gray-100 pt-1.5">
+                  <span className="text-brand-600 font-semibold">Goal target</span>
+                  <span className="font-bold text-brand-600">{targets.daily_calorie_target} kcal/day</span>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-white rounded-xl p-3 text-center shadow-sm">
                 <p className="text-2xl font-bold text-yellow-500">{targets.daily_calorie_target}</p>
