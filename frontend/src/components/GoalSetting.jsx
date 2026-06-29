@@ -3,30 +3,49 @@ import { Loader2, Target, AlertTriangle, Info } from 'lucide-react'
 
 function calculatePreview(form) {
   const weight = parseFloat(form.current_weight)
+  const targetWeight = parseFloat(form.target_weight)
   const height = parseFloat(form.height)
   const age = parseInt(form.age)
   if (!weight || !height || !age) return null
 
-  const bmr = 10 * weight + 6.25 * height - 5 * age + 5
+  // Mifflin-St Jeor (gender-specific)
+  const genderOffset = form.gender === 'female' ? -161 : 5
+  const bmr = 10 * weight + 6.25 * height - 5 * age + genderOffset
+
   const multipliers = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9 }
   const tdee = bmr * (multipliers[form.activity_level] || 1.55)
 
-  let calories, proteinRatio, carbsRatio
+  let calories
   if (form.goal_type === 'weight_loss') {
-    calories = Math.round(tdee - 500); proteinRatio = 0.35; carbsRatio = 0.40
+    calories = Math.max(Math.round(tdee - 500), 1300)
   } else if (form.goal_type === 'weight_gain') {
-    calories = Math.round(tdee + 400); proteinRatio = 0.25; carbsRatio = 0.50
+    calories = Math.round(tdee + 300)
   } else if (form.goal_type === 'muscle_building') {
-    calories = Math.round(tdee + 300); proteinRatio = 0.35; carbsRatio = 0.40
+    calories = Math.round(tdee + 250)
   } else {
-    calories = Math.round(tdee); proteinRatio = 0.25; carbsRatio = 0.45
+    calories = Math.round(tdee)
   }
+
+  let protein
+  if (form.goal_type === 'weight_loss') {
+    protein = Math.round((targetWeight || weight) * 2.0)
+  } else if (form.goal_type === 'maintenance') {
+    protein = Math.round(weight * 1.5)
+  } else {
+    protein = Math.round(weight * 2.2)
+  }
+
+  const fat = Math.round((calories * 0.30) / 9)
+  const carbCalories = calories - protein * 4 - fat * 9
+  const carbs = Math.max(0, Math.round(carbCalories / 4))
+  const water = parseFloat((weight * 35 / 1000).toFixed(1))
 
   return {
     daily_calorie_target: calories,
-    daily_protein_target: Math.round((calories * proteinRatio) / 4),
-    daily_carbs_target: Math.round((calories * carbsRatio) / 4),
-    daily_water_target: parseFloat(form.water_target) || 2.5,
+    daily_protein_target: protein,
+    daily_carbs_target: carbs,
+    daily_fat_target: fat,
+    daily_water_target: water,
   }
 }
 
@@ -37,12 +56,10 @@ function getWeightEstimate(goalType, current, target) {
 
   if (goalType === 'weight_loss' && cur > tgt) {
     const diff = cur - tgt
-    const months = Math.round(diff * 0.6)          // ~1.67 kg/month safe pace
+    const months = Math.round(diff * 0.6)
     const extreme = diff > 30
     return {
       type: extreme ? 'warning' : 'info',
-      months,
-      diff: diff.toFixed(1),
       message: `Losing ${diff.toFixed(1)} kg at a healthy pace (~1.5–2 kg/month) may take ~${months} month${months !== 1 ? 's' : ''}.`,
       extra: extreme ? 'A goal this large is best approached with a doctor or dietitian.' : null,
     }
@@ -50,11 +67,9 @@ function getWeightEstimate(goalType, current, target) {
 
   if ((goalType === 'weight_gain' || goalType === 'muscle_building') && tgt > cur) {
     const diff = tgt - cur
-    const months = Math.round(diff / 0.5)           // ~0.5 kg/month lean gain
+    const months = Math.round(diff / 0.5)
     return {
       type: 'info',
-      months,
-      diff: diff.toFixed(1),
       message: `Gaining ${diff.toFixed(1)} kg of lean muscle at a healthy pace (~0.5 kg/month) may take ~${months} month${months !== 1 ? 's' : ''}.`,
       extra: null,
     }
@@ -62,6 +77,7 @@ function getWeightEstimate(goalType, current, target) {
 
   return null
 }
+
 import toast from 'react-hot-toast'
 import { setGoal, updateGoal } from '../lib/api'
 
@@ -83,17 +99,15 @@ const ACTIVITY_LEVELS = [
 export default function GoalSetting({ existing, onSaved, onPreview }) {
   const [form, setForm] = useState({
     goal_type: existing?.goal_type || 'maintenance',
+    gender: existing?.gender || 'male',
     current_weight: existing?.current_weight || '',
     target_weight: existing?.target_weight || '',
     height: existing?.height || '',
     age: existing?.age || '',
     activity_level: existing?.activity_level || 'moderate',
-    water_target: existing?.daily_water_target || 2.5,
   })
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState({})
-
-  const preview = useMemo(() => calculatePreview(form), [form])
 
   const set = (k, v) => {
     setForm((f) => {
@@ -120,12 +134,12 @@ export default function GoalSetting({ existing, onSaved, onPreview }) {
     try {
       const payload = {
         goal_type: form.goal_type,
-        current_weight: form.current_weight ? parseFloat(form.current_weight) : null,
-        target_weight: form.target_weight ? parseFloat(form.target_weight) : null,
-        height: form.height ? parseFloat(form.height) : null,
-        age: form.age ? parseInt(form.age) : null,
+        gender: form.gender,
+        current_weight: parseFloat(form.current_weight),
+        target_weight: parseFloat(form.target_weight),
+        height: parseFloat(form.height),
+        age: parseInt(form.age),
         activity_level: form.activity_level,
-        water_target: parseFloat(form.water_target) || 2.5,
       }
       if (existing) {
         await updateGoal(payload)
@@ -143,6 +157,7 @@ export default function GoalSetting({ existing, onSaved, onPreview }) {
 
   return (
     <div className="space-y-6">
+      {/* Goal type */}
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-3">Your Goal</label>
         <div className="grid grid-cols-2 gap-3">
@@ -165,6 +180,28 @@ export default function GoalSetting({ existing, onSaved, onPreview }) {
         </div>
       </div>
 
+      {/* Gender */}
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">Biological Sex</label>
+        <div className="flex gap-3">
+          {[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }].map((g) => (
+            <button
+              key={g.value}
+              type="button"
+              onClick={() => set('gender', g.value)}
+              className={`flex-1 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all ${
+                form.gender === g.value
+                  ? 'border-brand-500 bg-brand-50 text-brand-700'
+                  : 'border-gray-100 text-gray-500 hover:border-gray-200'
+              }`}
+            >
+              {g.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Weight / height / age */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">Current Weight (kg) <span className="text-red-500">*</span></label>
@@ -212,7 +249,7 @@ export default function GoalSetting({ existing, onSaved, onPreview }) {
         </div>
       </div>
 
-      {/* Weight estimate / warning */}
+      {/* Weight timeline estimate */}
       {(() => {
         const est = getWeightEstimate(form.goal_type, form.current_weight, form.target_weight)
         if (!est) return null
@@ -223,39 +260,14 @@ export default function GoalSetting({ existing, onSaved, onPreview }) {
               ? <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
               : <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />}
             <div className="space-y-0.5">
-              <p className={`text-xs font-semibold ${isWarning ? 'text-amber-700' : 'text-blue-700'}`}>
-                {est.message}
-              </p>
-              {est.extra && (
-                <p className={`text-xs ${isWarning ? 'text-amber-600' : 'text-blue-600'}`}>{est.extra}</p>
-              )}
+              <p className={`text-xs font-semibold ${isWarning ? 'text-amber-700' : 'text-blue-700'}`}>{est.message}</p>
+              {est.extra && <p className={`text-xs ${isWarning ? 'text-amber-600' : 'text-blue-600'}`}>{est.extra}</p>}
             </div>
           </div>
         )
       })()}
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-          Daily Water Goal (L)
-          <span className="ml-2 text-xs font-normal text-gray-400">Recommended: 2–3L</span>
-        </label>
-        <div className="flex items-center gap-3">
-          <input
-            type="range"
-            min="1"
-            max="5"
-            step="0.5"
-            value={form.water_target}
-            onChange={(e) => set('water_target', e.target.value)}
-            className="flex-1 accent-cyan-500"
-          />
-          <span className="text-base font-bold text-cyan-600 w-12 text-right">{form.water_target}L</span>
-        </div>
-        <div className="flex justify-between text-xs text-gray-400 mt-1 px-0.5">
-          <span>1L</span><span>2L</span><span>3L</span><span>4L</span><span>5L</span>
-        </div>
-      </div>
-
+      {/* Activity level */}
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-1.5">Activity Level</label>
         <select

@@ -57,12 +57,12 @@ class MealLogResponse(BaseModel):
 
 class UserGoalCreate(BaseModel):
     goal_type: GoalType
+    gender: Optional[str] = "male"
     target_weight: Optional[float] = None
     current_weight: Optional[float] = None
     height: Optional[float] = None
     age: Optional[int] = None
     activity_level: Optional[str] = "moderate"
-    water_target: Optional[float] = None  # user override in litres
 
 
 class UserGoalResponse(BaseModel):
@@ -79,6 +79,7 @@ class UserGoalResponse(BaseModel):
     height: Optional[float]
     age: Optional[int]
     activity_level: Optional[str]
+    gender: Optional[str]
 
 
 class DashboardSummary(BaseModel):

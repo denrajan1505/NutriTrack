@@ -22,6 +22,7 @@ async def set_goal(goal: UserGoalCreate, authorization: str = Header(...)):
     row = {
         "user_id": user_id,
         "goal_type": goal.goal_type.value,
+        "gender": goal.gender or "male",
         "target_weight": goal.target_weight,
         "current_weight": goal.current_weight,
         "height": goal.height,
@@ -68,6 +69,7 @@ async def update_goal(goal: UserGoalCreate, authorization: str = Header(...)):
 
     row = {
         "goal_type": goal.goal_type.value,
+        "gender": goal.gender or "male",
         "target_weight": goal.target_weight,
         "current_weight": goal.current_weight,
         "height": goal.height,
