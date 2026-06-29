@@ -142,10 +142,7 @@ export default function Profile() {
               Save <strong>+1 (415) 523-8886</strong> in your contacts, open WhatsApp, and send:
             </p>
             <p className="mt-1.5 font-mono bg-white border border-green-300 rounded-lg px-3 py-1.5 text-green-900 text-xs tracking-wide select-all">
-              join &lt;your-sandbox-name&gt;
-            </p>
-            <p className="text-green-600 text-xs mt-1">
-              Find your sandbox join code in Twilio Console → Messaging → Try it out → Send a WhatsApp message
+              join scientist-chosen
             </p>
           </div>
           <div>
