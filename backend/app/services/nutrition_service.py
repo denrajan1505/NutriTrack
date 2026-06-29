@@ -37,7 +37,10 @@ def calculate_targets(goal: UserGoalCreate) -> dict:
     fat_target = int((calorie_target * 0.27) / 9)
     carb_calories = calorie_target - (protein_target * 4) - (fat_target * 9)
     carbs_target = max(0, int(carb_calories / 4))
-    water_target = round(weight * 35 / 1000, 1)
+    if getattr(goal, 'water_target', None):
+        water_target = round(goal.water_target, 1)
+    else:
+        water_target = round(weight * 35 / 1000, 1)
 
     return {
         "daily_calorie_target": calorie_target,

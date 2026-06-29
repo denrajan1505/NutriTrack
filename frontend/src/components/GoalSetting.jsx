@@ -38,7 +38,7 @@ function calculatePreview(form) {
   const fat = Math.round((calories * 0.27) / 9)
   const carbCalories = calories - protein * 4 - fat * 9
   const carbs = Math.max(0, Math.round(carbCalories / 4))
-  const water = parseFloat((weight * 35 / 1000).toFixed(1))
+  const water = parseFloat(form.water_target) || parseFloat((weight * 35 / 1000).toFixed(1))
 
   return {
     daily_calorie_target: calories,
@@ -107,6 +107,7 @@ export default function GoalSetting({ existing, onSaved, onPreview }) {
     height: existing?.height || '',
     age: existing?.age || '',
     activity_level: existing?.activity_level || 'moderate',
+    water_target: existing?.daily_water_target || 2.5,
   })
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState({})
@@ -142,6 +143,7 @@ export default function GoalSetting({ existing, onSaved, onPreview }) {
         height: parseFloat(form.height),
         age: parseInt(form.age),
         activity_level: form.activity_level,
+        water_target: parseFloat(form.water_target) || 2.5,
       }
       if (existing) {
         await updateGoal(payload)
@@ -281,6 +283,29 @@ export default function GoalSetting({ existing, onSaved, onPreview }) {
             <option key={a.value} value={a.value}>{a.label}</option>
           ))}
         </select>
+      </div>
+
+      {/* Water target */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          Daily Water Goal (L)
+          <span className="ml-2 text-xs font-normal text-gray-400">Recommended: 2–3L</span>
+        </label>
+        <div className="flex items-center gap-3">
+          <input
+            type="range"
+            min="1"
+            max="5"
+            step="0.5"
+            value={form.water_target}
+            onChange={(e) => set('water_target', e.target.value)}
+            className="flex-1 accent-cyan-500"
+          />
+          <span className="text-base font-bold text-cyan-600 w-12 text-right">{form.water_target}L</span>
+        </div>
+        <div className="flex justify-between text-xs text-gray-400 mt-1 px-0.5">
+          <span>1L</span><span>2L</span><span>3L</span><span>4L</span><span>5L</span>
+        </div>
       </div>
 
       <button onClick={handleSave} disabled={saving} className="btn-primary w-full flex items-center justify-center gap-2">
