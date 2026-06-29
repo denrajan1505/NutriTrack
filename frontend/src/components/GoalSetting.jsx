@@ -56,9 +56,9 @@ export default function GoalSetting({ existing, onSaved }) {
     goal_type: existing?.goal_type || 'maintenance',
     current_weight: existing?.current_weight || '',
     target_weight: existing?.target_weight || '',
-    height: '',
-    age: '',
-    activity_level: 'moderate',
+    height: existing?.height || '',
+    age: existing?.age || '',
+    activity_level: existing?.activity_level || 'moderate',
     water_target: existing?.daily_water_target || 2.5,
   })
   const [saving, setSaving] = useState(false)

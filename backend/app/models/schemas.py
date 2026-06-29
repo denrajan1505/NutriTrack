@@ -76,6 +76,9 @@ class UserGoalResponse(BaseModel):
     daily_water_target: float
     target_weight: Optional[float]
     current_weight: Optional[float]
+    height: Optional[float]
+    age: Optional[int]
+    activity_level: Optional[str]
 
 
 class DashboardSummary(BaseModel):
