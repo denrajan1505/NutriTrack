@@ -29,6 +29,28 @@ export default function Dashboard() {
   }
 
   const d = dashboard
+
+  function getFoodEmoji(name = '') {
+    const n = name.toLowerCase()
+    if (n.includes('chicken')) return '🍗'
+    if (n.includes('egg')) return '🥚'
+    if (n.includes('fish') || n.includes('salmon') || n.includes('tuna') || n.includes('sardine')) return '🐟'
+    if (n.includes('paneer')) return '🧀'
+    if (n.includes('yogurt') || n.includes('curd') || n.includes('dahi')) return '🥣'
+    if (n.includes('milk')) return '🥛'
+    if (n.includes('almond') || n.includes('walnut') || n.includes('cashew') || n.includes('nut') || n.includes('peanut')) return '🥜'
+    if (n.includes('quinoa') || n.includes('oat') || n.includes('grain') || n.includes('wheat')) return '🌾'
+    if (n.includes('dal') || n.includes('lentil') || n.includes('bean') || n.includes('chana') || n.includes('rajma')) return '🫘'
+    if (n.includes('tofu') || n.includes('soy')) return '🫘'
+    if (n.includes('beef') || n.includes('mutton') || n.includes('meat') || n.includes('lamb')) return '🥩'
+    if (n.includes('banana')) return '🍌'
+    if (n.includes('apple')) return '🍎'
+    if (n.includes('rice') || n.includes('biryani')) return '🍚'
+    if (n.includes('bread') || n.includes('roti') || n.includes('chapati') || n.includes('paratha')) return '🫓'
+    if (n.includes('salad') || n.includes('vegetable') || n.includes('veggie') || n.includes('spinach') || n.includes('broccoli')) return '🥗'
+    if (n.includes('protein') || n.includes('shake') || n.includes('whey') || n.includes('supplement')) return '💪'
+    return '🍽️'
+  }
   const hasData = d?.meals?.length > 0
   const caloriesPct = hasData ? Math.min((d.total_calories / d.calorie_target) * 100, 100) : 0
 
@@ -142,7 +164,7 @@ export default function Dashboard() {
                 )}
                 {suggestions.suggestions?.map((s, i) => (
                   <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
-                    <div className="text-2xl">{i === 0 ? '🍗' : i === 1 ? '🥚' : '🥛'}</div>
+                    <div className="text-2xl">{getFoodEmoji(s.food_name)}</div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-gray-900">{s.food_name}</p>
                       <p className="text-xs text-gray-500">{s.portion} · {Math.round(s.calories)} kcal · {Math.round(s.protein)}g protein</p>
