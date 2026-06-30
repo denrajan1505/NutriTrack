@@ -113,6 +113,49 @@ class VoiceAnalysisResponse(BaseModel):
     nutrition: NutritionInfo
 
 
+class ScoreBreakdown(BaseModel):
+    meal_logging: int
+    calorie_goal: int
+    protein_goal: int
+    water_intake: int
+    food_variety: int
+
+
+class DayData(BaseModel):
+    day: str
+    date: str
+    calories: float
+    protein: float
+    carbs: float
+    fat: float
+    water: float
+    calorie_goal_met: bool
+    protein_goal_met: bool
+    meals_logged: int
+
+
+class BestWorstDay(BaseModel):
+    day: str
+    date: str
+    score: int
+    calories: float
+    protein: float
+    water: float
+    calorie_goal_met: bool
+    protein_goal_met: bool
+
+
+class TopFood(BaseModel):
+    name: str
+    count: int
+
+
+class AiInsights(BaseModel):
+    good: List[str]
+    needs_improvement: List[str]
+    next_week_goals: List[str]
+
+
 class WeeklySummary(BaseModel):
     week_start: date
     week_end: date
@@ -120,11 +163,27 @@ class WeeklySummary(BaseModel):
     avg_daily_protein: float
     avg_daily_carbs: float
     avg_daily_fat: float
+    avg_daily_fiber: float
+    avg_daily_water: float
+    best_daily_water: float
+    lowest_daily_water: float
+    calorie_target: int
+    protein_target: int
+    water_target: float
     protein_goal_met_days: int
     calorie_goal_met_days: int
     total_meals_logged: int
     ai_summary: str
     nutrition_score: int
+    score_breakdown: ScoreBreakdown
+    daily_data: List[DayData]
+    best_day: Optional[BestWorstDay]
+    worst_day: Optional[BestWorstDay]
+    meal_distribution: dict
+    top_foods: List[TopFood]
+    current_streak: int
+    longest_streak: int
+    ai_insights: Optional[AiInsights]
 
 
 class MealSuggestion(BaseModel):

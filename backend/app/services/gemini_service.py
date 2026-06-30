@@ -206,34 +206,60 @@ async def generate_meal_suggestions(
         return _SUGGESTIONS_FALLBACK
 
 
-def _weekly_summary_fallback(stats: dict) -> str:
+def _weekly_summary_fallback(stats: dict) -> dict:
     protein_pct = int(stats['avg_protein'] / stats['protein_target'] * 100) if stats['protein_target'] else 0
     calorie_pct = int(stats['avg_calories'] / stats['calorie_target'] * 100) if stats['calorie_target'] else 0
-    return (
+    summary = (
         f"You averaged {stats['avg_calories']:.0f} kcal/day ({calorie_pct}% of target) "
         f"and {stats['avg_protein']:.0f}g protein/day ({protein_pct}% of target) this week. "
         f"You hit your protein goal on {stats['protein_goal_days']}/7 days — keep pushing!"
     )
+    good, needs, goals = [], [], []
+    if stats['calorie_goal_days'] >= 4:
+        good.append(f"Calorie goal met {stats['calorie_goal_days']}/7 days")
+    else:
+        needs.append(f"Calorie goal met only {stats['calorie_goal_days']}/7 days")
+    if stats['protein_goal_days'] >= 4:
+        good.append(f"Protein goal hit {stats['protein_goal_days']}/7 days")
+    else:
+        needs.append(f"Protein goal met only {stats['protein_goal_days']}/7 days")
+    if stats.get('avg_water', 0) >= stats.get('water_target', 2.5) * 0.8:
+        good.append("Good hydration this week")
+    else:
+        needs.append(f"Water intake below target ({stats.get('avg_water', 0):.1f}L avg)")
+    goals.append(f"Hit {stats['protein_target']}g protein every day")
+    goals.append(f"Drink {stats.get('water_target', 2.5)}L water daily")
+    goals.append("Log all meals to boost your nutrition score")
+    return {"summary": summary, "good": good, "needs_improvement": needs, "next_week_goals": goals}
 
 
-async def generate_weekly_summary(stats: dict) -> str:
+async def generate_weekly_summary(stats: dict) -> dict:
     prompt = (
-        f"You are a personal nutritionist. Generate a concise weekly summary (2-3 sentences) based on:\n"
-        f"- Average daily calories: {stats['avg_calories']:.0f} / {stats['calorie_target']} kcal\n"
-        f"- Average daily protein: {stats['avg_protein']:.0f}g / {stats['protein_target']}g\n"
+        f"You are a personal nutritionist. Analyze this week's data:\n"
+        f"- Avg calories: {stats['avg_calories']:.0f} / {stats['calorie_target']} kcal\n"
+        f"- Avg protein: {stats['avg_protein']:.0f}g / {stats['protein_target']}g\n"
+        f"- Avg water: {stats.get('avg_water', 0):.1f}L / {stats.get('water_target', 2.5)}L\n"
         f"- Protein goal met: {stats['protein_goal_days']} / 7 days\n"
         f"- Calorie goal met: {stats['calorie_goal_days']} / 7 days\n"
         f"- Total meals logged: {stats['total_meals']}\n"
+        f"- Nutrition score: {stats.get('nutrition_score', 0)}/100\n"
         f"- User goal: {stats['goal_type']}\n\n"
-        "Be encouraging, specific, and actionable. Max 3 sentences."
+        "Return ONLY valid JSON (no markdown, no backticks):\n"
+        '{"summary": "<2-3 sentence encouraging summary>", '
+        '"good": ["<achievement 1>", "<achievement 2>", "<achievement 3>"], '
+        '"needs_improvement": ["<issue 1>", "<issue 2>", "<issue 3>"], '
+        '"next_week_goals": ["<specific actionable goal 1>", "<goal 2>", "<goal 3>"]}'
     )
     try:
         response = await _client.chat.completions.create(
             model=_TEXT_MODEL,
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=150,
+            max_tokens=500,
         )
-        return response.choices[0].message.content.strip()
+        match = re.search(r'\{.*\}', response.choices[0].message.content, re.DOTALL)
+        if match:
+            return json.loads(match.group())
+        return _weekly_summary_fallback(stats)
     except Exception:
         return _weekly_summary_fallback(stats)
 
