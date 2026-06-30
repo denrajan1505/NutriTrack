@@ -10,12 +10,13 @@ import WaterTracker from '../components/WaterTracker'
 export default function Dashboard() {
   const { user } = useAuth()
   const { dashboard, loading, refresh } = useDashboard()
-  const { suggestions, refresh: refreshSuggestions } = useSuggestions()
+  const { suggestions, loading: suggestionsLoading, refresh: refreshSuggestions } = useSuggestions()
   const [showSuggestions, setShowSuggestions] = useState(false)
 
   useEffect(() => {
     refresh()
-  }, [refresh])
+    refreshSuggestions()
+  }, [refresh, refreshSuggestions])
 
   const name = user?.user_metadata?.full_name?.split(' ')[0] || 'there'
 
@@ -115,10 +116,7 @@ export default function Dashboard() {
       {/* AI Suggestions */}
       <div className="card">
         <button
-          onClick={() => {
-            setShowSuggestions(!showSuggestions)
-            if (!suggestions) refreshSuggestions()
-          }}
+          onClick={() => setShowSuggestions(!showSuggestions)}
           className="flex items-center justify-between w-full"
         >
           <div className="flex items-center gap-2">
@@ -128,24 +126,32 @@ export default function Dashboard() {
           <ChevronRight className={`w-5 h-5 text-gray-400 transition-transform ${showSuggestions ? 'rotate-90' : ''}`} />
         </button>
 
-        {showSuggestions && suggestions && (
-          <div className="mt-4 space-y-3">
-            {d && d.total_protein < d.protein_target && (
-              <div className="bg-blue-50 rounded-xl p-3 text-sm">
-                <p className="font-medium text-blue-800">Protein gap: {Math.round(suggestions.protein_gap)}g remaining</p>
-                <p className="text-blue-600 text-xs mt-0.5">{suggestions.motivational_tip}</p>
+        {showSuggestions && (
+          <div className="mt-4">
+            {suggestionsLoading ? (
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="w-5 h-5 animate-spin text-brand-500" />
               </div>
-            )}
-            {suggestions.suggestions?.map((s, i) => (
-              <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
-                <div className="text-2xl">{i === 0 ? '🍗' : i === 1 ? '🥚' : '🥛'}</div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-900">{s.food_name}</p>
-                  <p className="text-xs text-gray-500">{s.portion} · {Math.round(s.calories)} kcal · {Math.round(s.protein)}g protein</p>
-                  <p className="text-xs text-brand-600 mt-0.5">{s.reason}</p>
-                </div>
+            ) : suggestions ? (
+              <div className="space-y-3">
+                {d && d.total_protein < d.protein_target && (
+                  <div className="bg-blue-50 rounded-xl p-3 text-sm">
+                    <p className="font-medium text-blue-800">Protein gap: {Math.round(suggestions.protein_gap)}g remaining</p>
+                    <p className="text-blue-600 text-xs mt-0.5">{suggestions.motivational_tip}</p>
+                  </div>
+                )}
+                {suggestions.suggestions?.map((s, i) => (
+                  <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+                    <div className="text-2xl">{i === 0 ? '🍗' : i === 1 ? '🥚' : '🥛'}</div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-900">{s.food_name}</p>
+                      <p className="text-xs text-gray-500">{s.portion} · {Math.round(s.calories)} kcal · {Math.round(s.protein)}g protein</p>
+                      <p className="text-xs text-brand-600 mt-0.5">{s.reason}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : null}
           </div>
         )}
       </div>
