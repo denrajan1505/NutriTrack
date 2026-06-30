@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Loader2, TrendingUp, Award, Flame, Droplets, Trophy, CheckCircle, XCircle } from 'lucide-react'
+import { Loader2, TrendingUp, Award, Flame, Droplets, Trophy, CheckCircle, XCircle, Download } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine,
   PieChart, Pie, Cell,
@@ -109,11 +109,20 @@ export default function Weekly() {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Weekly Report</h1>
-        <p className="text-sm text-gray-500 mt-0.5">
-          {format(parseISO(summary.week_start), 'MMM d')} – {format(parseISO(summary.week_end), 'MMM d, yyyy')}
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Weekly Report</h1>
+          <p className="text-sm text-gray-500 mt-0.5">
+            {format(parseISO(summary.week_start), 'MMM d')} – {format(parseISO(summary.week_end), 'MMM d, yyyy')}
+          </p>
+        </div>
+        <button
+          onClick={() => window.print()}
+          className="print:hidden flex items-center gap-2 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 active:scale-95 px-4 py-2.5 rounded-xl transition-all shadow-sm"
+        >
+          <Download className="w-4 h-4" />
+          Download PDF
+        </button>
       </div>
 
       {/* ── Nutrition Score + Breakdown ── */}

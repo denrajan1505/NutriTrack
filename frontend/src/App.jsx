@@ -31,15 +31,15 @@ function ProtectedLayout() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <main className="lg:ml-60 pt-16 lg:pt-0 pb-24 lg:pb-0 px-4 lg:px-8 py-6 max-w-2xl mx-auto lg:mx-0 lg:max-w-3xl">
+      <div className="print:hidden"><Navbar /></div>
+      <main className="lg:ml-60 pt-16 lg:pt-0 pb-24 lg:pb-0 px-4 lg:px-8 py-6 max-w-2xl mx-auto lg:mx-0 lg:max-w-3xl print:ml-0 print:pt-0 print:pb-0 print:max-w-full print:px-0">
         <Outlet />
       </main>
 
       {!hideFab && (
         <Link
           to="/log"
-          className="fixed bottom-24 right-4 lg:bottom-8 lg:right-8 z-40 flex items-center gap-2.5 bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-semibold text-sm px-5 py-3.5 rounded-2xl shadow-xl hover:shadow-2xl transition-all"
+          className="fixed bottom-24 right-4 lg:bottom-8 lg:right-8 z-40 flex items-center gap-2.5 bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-semibold text-sm px-5 py-3.5 rounded-2xl shadow-xl hover:shadow-2xl transition-all print:hidden"
         >
           <UtensilsCrossed className="w-5 h-5" />
           Log Meal
