@@ -11,7 +11,7 @@ const PLANS = [
     name: 'Free',
     price: '₹0',
     period: '',
-    features: ['20 meal logs/month', 'Basic calorie tracking', 'AI photo analysis'],
+    features: ['20 meal logs/month', 'Basic calorie tracking', 'AI photo analysis', 'WhatsApp AI agent'],
     color: 'border-gray-200',
     badge: null,
   },
@@ -20,7 +20,7 @@ const PLANS = [
     name: 'Pro',
     price: '₹199',
     period: '/mo',
-    features: ['Unlimited meal logs', 'AI meal recommendations', 'Weekly reports', 'Voice logging'],
+    features: ['Unlimited meal logs', 'AI meal recommendations', 'Weekly reports', 'Voice logging', 'WhatsApp AI agent'],
     color: 'border-brand-400 bg-brand-50',
     badge: 'Popular',
     badgeColor: 'bg-brand-500',
@@ -31,7 +31,7 @@ const PLANS = [
     name: 'Premium',
     price: '₹499',
     period: '/mo',
-    features: ['Everything in Pro', 'WhatsApp AI agent', 'Advanced analytics', 'Personalized coaching'],
+    features: ['Everything in Pro', 'Advanced analytics', 'Personalized coaching', 'Priority support'],
     color: 'border-purple-400 bg-purple-50',
     badge: 'Best Value',
     badgeColor: 'bg-purple-500',
@@ -130,12 +130,12 @@ export default function Profile() {
         <div className="flex items-center gap-2 mb-4">
           <Smartphone className="w-5 h-5 text-green-500" />
           <h2 className="font-semibold text-gray-900">WhatsApp Agent</h2>
-          <span className="text-xs bg-purple-100 text-purple-600 font-semibold rounded-full px-2 py-0.5 ml-auto">Premium</span>
+          <span className="text-xs bg-green-100 text-green-600 font-semibold rounded-full px-2 py-0.5 ml-auto">Free</span>
         </div>
         <p className="text-sm text-gray-500 mb-3">
           Log meals by sending a food photo or text to the Nutries WhatsApp bot.
         </p>
-        {plan === 'premium' && <div className="bg-green-50 border border-green-200 rounded-xl p-3 mb-4 space-y-2.5 text-sm">
+        <div className="bg-green-50 border border-green-200 rounded-xl p-3 mb-4 space-y-2.5 text-sm">
           <div>
             <p className="font-semibold text-green-800">Step 1 — Join the sandbox</p>
             <p className="text-green-700 mt-0.5">
@@ -149,7 +149,7 @@ export default function Profile() {
             <p className="font-semibold text-green-800">Step 2 — Link your number</p>
             <p className="text-green-700 mt-0.5">Enter your WhatsApp number below and tap Link Number. Then start sending food photos or descriptions!</p>
           </div>
-        </div>}
+        </div>
         <div className="flex gap-3">
           <input
             type="tel"
