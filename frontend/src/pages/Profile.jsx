@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { User, Smartphone, Shield, LogOut, ShieldCheck, Crown, Zap } from 'lucide-react'
+import { User, Smartphone, Shield, LogOut, ShieldCheck, Crown, Zap, Sparkles } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { linkPhone, createCheckout } from '../lib/api'
 import toast from 'react-hot-toast'
 
-const PLANS = [
+const MONTHLY_PLANS = [
   {
     id: 'free',
     name: 'Free',
@@ -39,8 +39,53 @@ const PLANS = [
   },
 ]
 
-const PLAN_LABELS = { free: 'Free Plan', pro: 'Pro', premium: 'Premium' }
-const PLAN_COLORS = { free: 'bg-gray-100 text-gray-600', pro: 'bg-brand-100 text-brand-700', premium: 'bg-purple-100 text-purple-700' }
+const ANNUAL_PLANS = [
+  {
+    id: 'free',
+    name: 'Free',
+    price: '₹0',
+    period: '',
+    features: ['20 meal logs/month', 'Basic calorie tracking', 'AI photo analysis', 'WhatsApp AI agent'],
+    color: 'border-gray-200',
+    badge: null,
+  },
+  {
+    id: 'pro_annual',
+    name: 'Pro',
+    price: '₹1,990',
+    period: '/yr',
+    sub: '₹166/mo · save 2 months',
+    features: ['Unlimited meal logs', 'AI meal recommendations', 'Weekly reports', 'Voice logging', 'WhatsApp AI agent'],
+    color: 'border-brand-400 bg-brand-50',
+    badge: 'Popular',
+    badgeColor: 'bg-brand-500',
+    icon: Zap,
+  },
+  {
+    id: 'premium_annual',
+    name: 'Premium',
+    price: '₹4,990',
+    period: '/yr',
+    sub: '₹416/mo · save 2 months',
+    features: ['Everything in Pro', 'Advanced analytics', 'Personalized coaching', 'Priority support'],
+    color: 'border-purple-400 bg-purple-50',
+    badge: 'Best Value',
+    badgeColor: 'bg-purple-500',
+    icon: Crown,
+  },
+]
+
+const PLAN_LABELS = {
+  free: 'Free Plan', pro: 'Pro', premium: 'Premium',
+  pro_annual: 'Pro Annual', premium_annual: 'Premium Annual',
+}
+const PLAN_COLORS = {
+  free: 'bg-gray-100 text-gray-600',
+  pro: 'bg-brand-100 text-brand-700',
+  premium: 'bg-purple-100 text-purple-700',
+  pro_annual: 'bg-brand-100 text-brand-700',
+  premium_annual: 'bg-purple-100 text-purple-700',
+}
 
 export default function Profile() {
   const { user, signOut, isAdmin, plan } = useAuth()
@@ -49,6 +94,7 @@ export default function Profile() {
   const [phone, setPhone] = useState('')
   const [linking, setLinking] = useState(false)
   const [upgrading, setUpgrading] = useState(null)
+  const [billing, setBilling] = useState('monthly')
 
   const paymentSuccess = searchParams.get('payment') === 'success'
 
@@ -174,13 +220,31 @@ export default function Profile() {
 
       {/* Pricing */}
       <div>
-        <h2 className="font-semibold text-gray-900 mb-3">Upgrade Plan</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold text-gray-900">Upgrade Plan</h2>
+          <div className="flex items-center bg-gray-100 rounded-xl p-1 text-xs font-semibold">
+            <button
+              onClick={() => setBilling('monthly')}
+              className={`px-3 py-1.5 rounded-lg transition-all ${billing === 'monthly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setBilling('annual')}
+              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 ${billing === 'annual' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+            >
+              Annual
+              <span className="bg-green-100 text-green-700 rounded-full px-1.5 py-0.5 text-[10px] font-bold">-17%</span>
+            </button>
+          </div>
+        </div>
         <div className="space-y-3">
-          {PLANS.map((p) => {
+          {(billing === 'annual' ? ANNUAL_PLANS : MONTHLY_PLANS).map((p) => {
             const isCurrent = plan === p.id
-            const isDowngrade = (plan === 'premium' && p.id === 'pro') || (plan !== 'free' && p.id === 'free')
+            const tierRank = { free: 0, pro: 1, pro_annual: 1, premium: 2, premium_annual: 2 }
+            const isDowngrade = p.id !== 'free' && tierRank[p.id] <= tierRank[plan] && !isCurrent
             return (
-              <div key={p.name} className={`card border-2 ${p.color} relative`}>
+              <div key={p.id} className={`card border-2 ${p.color} relative`}>
                 {p.badge && (
                   <span className={`absolute -top-2.5 right-4 text-xs font-bold ${p.badgeColor} text-white rounded-full px-3 py-0.5`}>
                     {p.badge}
@@ -192,10 +256,11 @@ export default function Profile() {
                     <p className="text-xl font-bold text-brand-600">
                       {p.price}<span className="text-sm font-normal text-gray-500">{p.period}</span>
                     </p>
+                    {p.sub && <p className="text-xs text-green-600 font-medium mt-0.5">{p.sub}</p>}
                   </div>
                   {isCurrent ? (
                     <span className="text-xs bg-green-100 text-green-600 font-semibold rounded-full px-3 py-1">Current</span>
-                  ) : isDowngrade ? null : (
+                  ) : p.id === 'free' || isDowngrade ? null : (
                     <button
                       onClick={() => handleUpgrade(p.id)}
                       disabled={upgrading === p.id}

@@ -1,7 +1,10 @@
+import logging
 from fastapi import APIRouter, Header, HTTPException
 from app.core.supabase_client import supabase, get_user_id_from_token
 from app.models.schemas import UserGoalCreate, UserGoalResponse
 from app.services.nutrition_service import calculate_targets
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/goals", tags=["goals"])
 
@@ -31,7 +34,11 @@ async def set_goal(goal: UserGoalCreate, authorization: str = Header(...)):
         **targets,
     }
 
-    result = supabase.table("user_goals").insert(row).execute()
+    try:
+        result = supabase.table("user_goals").insert(row).execute()
+    except Exception as e:
+        logger.error("Goal insert failed: %s", e)
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
     if not result.data:
         raise HTTPException(status_code=500, detail="Failed to save goal")
     return UserGoalResponse(**result.data[0])
@@ -78,12 +85,15 @@ async def update_goal(goal: UserGoalCreate, authorization: str = Header(...)):
         **targets,
     }
 
-    if existing.data:
-        result = supabase.table("user_goals").update(row).eq("id", existing.data[0]["id"]).execute()
-    else:
-        row["user_id"] = user_id
-        result = supabase.table("user_goals").insert(row).execute()
-
+    try:
+        if existing.data:
+            result = supabase.table("user_goals").update(row).eq("id", existing.data[0]["id"]).execute()
+        else:
+            row["user_id"] = user_id
+            result = supabase.table("user_goals").insert(row).execute()
+    except Exception as e:
+        logger.error("Goal update failed: %s", e)
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
     if not result.data:
         raise HTTPException(status_code=500, detail="Failed to update goal")
     return UserGoalResponse(**result.data[0])

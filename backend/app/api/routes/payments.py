@@ -13,7 +13,7 @@ router = APIRouter(prefix="/payments", tags=["payments"])
 def _get_dodo():
     return DodoPayments(
         bearer_token=settings.dodo_api_key,
-        environment="test_mode",
+        environment="live_mode",
     )
 
 
@@ -21,6 +21,8 @@ def _plan_maps():
     pm = {
         "pro": settings.dodo_pro_product_id,
         "premium": settings.dodo_premium_product_id,
+        "pro_annual": settings.dodo_pro_annual_product_id,
+        "premium_annual": settings.dodo_premium_annual_product_id,
     }
     return pm, {v: k for k, v in pm.items()}
 

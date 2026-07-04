@@ -5,9 +5,11 @@ import { getAdminUsers } from '../lib/api'
 import { Users, Shield, Mail, Clock, CheckCircle, XCircle, Search, UtensilsCrossed, Crown, Zap } from 'lucide-react'
 
 const PLAN_STYLES = {
-  free:    { label: 'Free',    cls: 'bg-gray-100 text-gray-600' },
-  pro:     { label: 'Pro',     cls: 'bg-brand-100 text-brand-700' },
-  premium: { label: 'Premium', cls: 'bg-purple-100 text-purple-700' },
+  free:            { label: 'Free',    cls: 'bg-gray-100 text-gray-600' },
+  pro:             { label: 'Pro',     cls: 'bg-brand-100 text-brand-700' },
+  premium:         { label: 'Premium', cls: 'bg-purple-100 text-purple-700' },
+  pro_annual:      { label: 'Pro (Annual)',     cls: 'bg-brand-100 text-brand-700' },
+  premium_annual:  { label: 'Premium (Annual)', cls: 'bg-purple-100 text-purple-700' },
 }
 
 function formatDate(iso) {
@@ -93,8 +95,8 @@ export default function Admin() {
         {[
           { label: 'Total Users', value: total, icon: Users, color: 'bg-brand-50 text-brand-600' },
           { label: 'Free', value: users.filter(u => u.plan === 'free').length, icon: Shield, color: 'bg-gray-100 text-gray-600' },
-          { label: 'Pro', value: users.filter(u => u.plan === 'pro').length, icon: Zap, color: 'bg-brand-100 text-brand-700' },
-          { label: 'Premium', value: users.filter(u => u.plan === 'premium').length, icon: Crown, color: 'bg-purple-100 text-purple-700' },
+          { label: 'Pro', value: users.filter(u => u.plan === 'pro' || u.plan === 'pro_annual').length, icon: Zap, color: 'bg-brand-100 text-brand-700' },
+          { label: 'Premium', value: users.filter(u => u.plan === 'premium' || u.plan === 'premium_annual').length, icon: Crown, color: 'bg-purple-100 text-purple-700' },
         ].map(({ label, value, icon: Icon, color }) => (
           <div key={label} className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-3">
             <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>

@@ -40,6 +40,7 @@ CREATE TABLE user_goals (
   height NUMERIC(6,2),
   age INTEGER,
   activity_level TEXT DEFAULT 'moderate',
+  gender TEXT DEFAULT 'male',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

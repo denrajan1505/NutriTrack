@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     dodo_webhook_secret: str = ""
     dodo_pro_product_id: str = ""
     dodo_premium_product_id: str = ""
+    dodo_pro_annual_product_id: str = ""
+    dodo_premium_annual_product_id: str = ""
     frontend_url: str = "https://nutries.appden.sbs"
 
     class Config:
