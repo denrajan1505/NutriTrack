@@ -45,16 +45,13 @@ async def create_checkout(plan: str, user=Depends(require_auth)):
     dodo = _get_dodo()
 
     try:
-        response = dodo.subscriptions.create(
-            product_id=product_id,
-            quantity=1,
+        response = dodo.checkout_sessions.create(
+            product_cart=[{"product_id": product_id, "quantity": 1}],
             customer={"email": user["email"], "name": user["email"].split("@")[0]},
-            billing={"country": "IN"},
-            payment_link=True,
             return_url=f"{settings.frontend_url}/profile?payment=success",
             metadata={"user_id": user["id"], "plan": plan},
         )
-        url = getattr(response, "payment_link", None) or getattr(response, "url", None)
+        url = response.checkout_url
         if not url:
             raise HTTPException(status_code=500, detail="No checkout URL returned")
         return {"url": url}
